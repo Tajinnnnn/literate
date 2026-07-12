@@ -10,6 +10,8 @@ const HOTKEY_FIELDS = [
   { key: 'pausePlay', label: 'Play / Pause' },
   { key: 'lock', label: 'Scroll Lock' },
   { key: 'readFromHere', label: 'Read From Here' },
+  { key: 'slowDown', label: 'Slow Down' },
+  { key: 'speedUp', label: 'Speed Up' },
 ];
 
 function volumeIcon(volume) {
@@ -123,11 +125,13 @@ const Popup = () => {
   };
 
   const commitHotkey = (fieldKey, raw) => {
-    const letter = raw.trim().toLowerCase();
+    // Not limited to letters — punctuation keys like "," and "." are valid
+    // hotkeys too (they're the defaults for slow down / speed up).
+    const char = raw.trim().toLowerCase();
     setEditingHotkeyField(null);
-    if (/^[a-z]$/.test(letter)) {
+    if (/^\S$/.test(char)) {
       const hotkeys = (state && state.hotkeys) || DEFAULT_HOTKEYS;
-      handleSetHotkeys({ ...hotkeys, [fieldKey]: letter });
+      handleSetHotkeys({ ...hotkeys, [fieldKey]: char });
     } else {
       // Invalid or cleared — revert the field to its last known value.
       const hotkeys = (state && state.hotkeys) || DEFAULT_HOTKEYS;
@@ -285,7 +289,7 @@ const Popup = () => {
                   value={hotkeyDrafts[key] ?? ''}
                   onFocus={() => setEditingHotkeyField(key)}
                   onChange={(e) => {
-                    const v = e.target.value.replace(/[^a-zA-Z]/g, '').slice(-1).toUpperCase();
+                    const v = e.target.value.replace(/\s/g, '').slice(-1).toUpperCase();
                     setHotkeyDrafts((prev) => ({ ...prev, [key]: v }));
                   }}
                   onBlur={(e) => commitHotkey(key, e.target.value)}
