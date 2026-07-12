@@ -1,0 +1,164 @@
+.tts-popup {
+  width: 240px;
+  padding: 12px;
+  background: #1f2430;
+  color: #f4f4f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.tts-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.tts-icon-toggle {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tts-icon-toggle:hover {
+  background: #333a4a;
+}
+
+.tts-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.tts-btn {
+  flex: 1;
+  padding: 7px 6px;
+  border: none;
+  border-radius: 6px;
+  background: #333a4a;
+  color: #f4f4f5;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tts-btn:hover:not(:disabled) {
+  background: #414a5e;
+}
+
+.tts-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tts-btn.primary {
+  background: #4f7cff;
+}
+
+.tts-btn.primary:hover {
+  background: #6690ff;
+}
+
+.tts-section {
+  margin-top: 10px;
+}
+
+.tts-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tts-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tts-step-btn {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 6px;
+  background: #333a4a;
+  color: #f4f4f5;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tts-step-btn:hover {
+  background: #414a5e;
+}
+
+.tts-rate-input {
+  width: 34px;
+  text-align: center;
+  padding: 5px 2px;
+  border: none;
+  border-radius: 6px;
+  background: #2a2f3b;
+  color: #f4f4f5;
+  font-size: 12px;
+}
+
+.tts-volume-control {
+  display: inline-flex;
+  align-items: center;
+}
+
+.tts-volume-icon {
+  font-size: 14px;
+  padding: 3px;
+  cursor: default;
+}
+
+.tts-volume-popout {
+  display: flex;
+  align-items: center;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 0.18s ease, opacity 0.15s ease;
+}
+
+.tts-volume-control:hover .tts-volume-popout,
+.tts-volume-popout:focus-within {
+  max-width: 90px;
+  opacity: 1;
+  margin-left: 4px;
+}
+
+.tts-slider {
+  width: 80px;
+  accent-color: #4f7cff;
+}
+
+.tts-color-input {
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tts-select {
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  background: #333a4a;
+  color: #f4f4f5;
+  font-size: 12px;
+}
+
+.tts-hint {
+  font-size: 12px;
+  color: #c7cbd4;
+  line-height: 1.5;
+}

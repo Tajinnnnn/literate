@@ -1,0 +1,20 @@
+.__ttsxr_word_active {
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Base page background/text so there's no flash of the original bright
+   background before the per-element darkening pass (in darkMode.js) runs. */
+html.__ttsxr_dark_mode__,
+html.__ttsxr_dark_mode__ body {
+  background-color: #080808 !important;
+  color: #dcdcdc !important;
+}
+
+/* Photos/video are dimmed slightly for comfort rather than inverted, so
+   colors stay true instead of looking like a photo negative. */
+html.__ttsxr_dark_mode__ img,
+html.__ttsxr_dark_mode__ video,
+html.__ttsxr_dark_mode__ canvas {
+  filter: brightness(0.85) contrast(0.95);
+}
