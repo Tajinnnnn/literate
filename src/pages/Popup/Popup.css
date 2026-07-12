@@ -164,6 +164,38 @@
   font-size: 12px;
 }
 
+.tts-hotkeys {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.tts-hotkey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tts-hotkey-label {
+  font-size: 12px;
+  color: #c7cbd4;
+}
+
+.tts-hotkey-input {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  text-align: center;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 6px;
+  background: #2a2f3b;
+  color: #f4f4f5;
+  font-size: 12px;
+}
+
 .tts-hint {
   font-size: 12px;
   color: #c7cbd4;
