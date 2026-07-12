@@ -1,9 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './Popup.css';
-import { MSG } from '../../shared/messages';
+import { MSG, DEFAULT_HOTKEYS } from '../../shared/messages';
 
 const MIN_RATE = 0.1;
 const MAX_RATE = 10;
+
+const HOTKEY_FIELDS = [
+  { key: 'readPage', label: 'Read Page' },
+  { key: 'pausePlay', label: 'Play / Pause' },
+  { key: 'lock', label: 'Scroll Lock' },
+  { key: 'readFromHere', label: 'Read From Here' },
+  { key: 'slowDown', label: 'Slow Down' },
+  { key: 'speedUp', label: 'Speed Up' },
+];
 
 function volumeIcon(volume) {
   if (volume <= 0) return '🔇';
@@ -46,6 +55,8 @@ const Popup = () => {
   const [editingRate, setEditingRate] = useState(false);
   const [volumeDraft, setVolumeDraft] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [hotkeyDrafts, setHotkeyDrafts] = useState({});
+  const [editingHotkeyField, setEditingHotkeyField] = useState(null);
 
   const refreshState = useCallback(() => {
     sendToActiveTab({ type: MSG.GET_STATE }).then((res) => {
@@ -73,6 +84,19 @@ const Popup = () => {
     }
   }, [state, editingRate]);
 
+  useEffect(() => {
+    const hotkeys = (state && state.hotkeys) || DEFAULT_HOTKEYS;
+    setHotkeyDrafts((prev) => {
+      const next = { ...prev };
+      HOTKEY_FIELDS.forEach(({ key }) => {
+        if (editingHotkeyField !== key) {
+          next[key] = (hotkeys[key] || '').toUpperCase();
+        }
+      });
+      return next;
+    });
+  }, [state, editingHotkeyField]);
+
   const handleReadPage = () => sendToActiveTab({ type: MSG.READ_PAGE }).then(refreshState);
   const handleTogglePause = () => sendToActiveTab({ type: MSG.TOGGLE_PAUSE }).then(refreshState);
   const handleStop = () => sendToActiveTab({ type: MSG.STOP }).then(refreshState);
@@ -81,6 +105,8 @@ const Popup = () => {
   const handleVolume = (volume) => sendToActiveTab({ type: MSG.SET_VOLUME, volume }).then(refreshState);
   const handleColor = (color) => sendToActiveTab({ type: MSG.SET_HIGHLIGHT_COLOR, color }).then(refreshState);
   const handleToggleDarkMode = () => sendToActiveTab({ type: MSG.TOGGLE_DARK_MODE }).then(refreshState);
+  const handleSetHotkeys = (hotkeys) =>
+    sendToActiveTab({ type: MSG.SET_HOTKEYS, hotkeys }).then(refreshState);
 
   const stepRate = (delta) => {
     const current = state ? state.rate : 1;
@@ -96,6 +122,21 @@ const Popup = () => {
       setRateText(state.rate.toFixed(1));
     }
     setEditingRate(false);
+  };
+
+  const commitHotkey = (fieldKey, raw) => {
+    // Not limited to letters — punctuation keys like "," and "." are valid
+    // hotkeys too (they're the defaults for slow down / speed up).
+    const char = raw.trim().toLowerCase();
+    setEditingHotkeyField(null);
+    if (/^\S$/.test(char)) {
+      const hotkeys = (state && state.hotkeys) || DEFAULT_HOTKEYS;
+      handleSetHotkeys({ ...hotkeys, [fieldKey]: char });
+    } else {
+      // Invalid or cleared — revert the field to its last known value.
+      const hotkeys = (state && state.hotkeys) || DEFAULT_HOTKEYS;
+      setHotkeyDrafts((prev) => ({ ...prev, [fieldKey]: (hotkeys[fieldKey] || '').toUpperCase() }));
+    }
   };
 
   if (unavailable) {
@@ -114,6 +155,7 @@ const Popup = () => {
   const volume = volumeDraft !== null ? volumeDraft : (state && state.volume) ?? 1;
   const highlightColor = (state && state.highlightColor) || '#ffe58a';
   const darkMode = !!(state && state.darkMode);
+  const hotkeys = (state && state.hotkeys) || DEFAULT_HOTKEYS;
 
   return (
     <div className="tts-popup">
@@ -135,7 +177,11 @@ const Popup = () => {
       </div>
 
       <div className="tts-row">
-        <button className="tts-btn primary" onClick={handleReadPage} title="Shortcut: O">
+        <button
+          className="tts-btn primary"
+          onClick={handleReadPage}
+          title={`Shortcut: ${hotkeys.readPage.toUpperCase()}`}
+        >
           Read Page
         </button>
       </div>
@@ -145,7 +191,7 @@ const Popup = () => {
           className="tts-btn"
           onClick={handleTogglePause}
           disabled={!isActive}
-          title="Shortcut: P"
+          title={`Shortcut: ${hotkeys.pausePlay.toUpperCase()}`}
         >
           {isPaused ? '▶ Resume' : '⏸ Pause'}
         </button>
@@ -230,6 +276,29 @@ const Popup = () => {
                 ))}
               </select>
             )}
+          </div>
+
+          <div className="tts-hotkeys">
+            {HOTKEY_FIELDS.map(({ key, label }) => (
+              <div className="tts-hotkey-row" key={key}>
+                <span className="tts-hotkey-label">{label}</span>
+                <input
+                  className="tts-hotkey-input"
+                  type="text"
+                  maxLength={1}
+                  value={hotkeyDrafts[key] ?? ''}
+                  onFocus={() => setEditingHotkeyField(key)}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\s/g, '').slice(-1).toUpperCase();
+                    setHotkeyDrafts((prev) => ({ ...prev, [key]: v }));
+                  }}
+                  onBlur={(e) => commitHotkey(key, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') e.currentTarget.blur();
+                  }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       )}

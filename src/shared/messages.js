@@ -11,4 +11,14 @@ export const MSG = {
   SET_VOLUME: 'TTSXR_SET_VOLUME',
   SET_HIGHLIGHT_COLOR: 'TTSXR_SET_HIGHLIGHT_COLOR',
   TOGGLE_DARK_MODE: 'TTSXR_TOGGLE_DARK_MODE',
+  SET_HOTKEYS: 'TTSXR_SET_HOTKEYS',
+};
+
+export const DEFAULT_HOTKEYS = {
+  readPage: 'o',
+  pausePlay: 'p',
+  lock: 'l',
+  readFromHere: 'i',
+  slowDown: ',',
+  speedUp: '.',
 };

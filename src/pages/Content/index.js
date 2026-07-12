@@ -1,10 +1,24 @@
 import { TTSEngine } from './modules/ttsEngine';
 import { getWordIndexBeforeSelection } from './modules/wordWrapper';
 import { initDarkMode, isDarkModeActive, toggleDarkMode } from './modules/darkMode';
-import { MSG } from '../../shared/messages';
+import { MSG, DEFAULT_HOTKEYS } from '../../shared/messages';
 
 const engine = new TTSEngine();
 initDarkMode();
+
+let hotkeys = { ...DEFAULT_HOTKEYS };
+if (chrome.storage && chrome.storage.sync) {
+  chrome.storage.sync.get(['ttsHotkeys'], (res) => {
+    if (res.ttsHotkeys) hotkeys = { ...DEFAULT_HOTKEYS, ...res.ttsHotkeys };
+  });
+  // Other tabs (or this one, via the popup) can change hotkeys at any time;
+  // pick the update up immediately rather than only at page load.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.ttsHotkeys) {
+      hotkeys = { ...DEFAULT_HOTKEYS, ...(changes.ttsHotkeys.newValue || {}) };
+    }
+  });
+}
 
 // Captured just before the native context menu opens, so the "Read from
 // here" menu item knows where on the page the user right-clicked.
@@ -42,7 +56,7 @@ function readFromHere(fallbackTarget) {
 }
 
 function fullState() {
-  return { ...engine.getState(), darkMode: isDarkModeActive() };
+  return { ...engine.getState(), darkMode: isDarkModeActive(), hotkeys };
 }
 
 function isEditableTarget(el) {
@@ -51,23 +65,28 @@ function isEditableTarget(el) {
   return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT';
 }
 
-// Bare-letter shortcuts: O to read the page, P to pause/resume, L to toggle
-// scroll lock, I to read from here (the current selection, or wherever the
-// mouse is hovering). Ignored while typing in a field, or if a modifier key
-// is held (so browser/site shortcuts like Cmd+P for print are untouched).
+// User-configurable shortcuts (see the settings panel): read the page,
+// pause/resume, toggle scroll lock, read from here (the current selection,
+// or wherever the mouse is hovering), and slow down/speed up playback.
+// Ignored while typing in a field, or if a modifier key is held (so
+// browser/site shortcuts like Cmd+P for print are untouched).
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
   if (isEditableTarget(document.activeElement)) return;
 
   const key = e.key.toLowerCase();
-  if (key === 'o') {
+  if (key && key === hotkeys.readPage) {
     engine.start('page');
-  } else if (key === 'p') {
+  } else if (key && key === hotkeys.pausePlay) {
     engine.togglePause();
-  } else if (key === 'l') {
+  } else if (key && key === hotkeys.lock) {
     engine.toggleFollowLock();
-  } else if (key === 'i') {
+  } else if (key && key === hotkeys.readFromHere) {
     readFromHere(document.elementFromPoint(lastMouseX, lastMouseY));
+  } else if (key && key === hotkeys.slowDown) {
+    engine.adjustRate(-0.1);
+  } else if (key && key === hotkeys.speedUp) {
+    engine.adjustRate(0.1);
   }
 });
 
@@ -122,6 +141,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
     case MSG.TOGGLE_DARK_MODE:
       toggleDarkMode();
+      sendResponse(fullState());
+      break;
+    case MSG.SET_HOTKEYS:
+      hotkeys = { ...DEFAULT_HOTKEYS, ...message.hotkeys };
+      if (chrome.storage && chrome.storage.sync) {
+        chrome.storage.sync.set({ ttsHotkeys: hotkeys });
+      }
       sendResponse(fullState());
       break;
     default:
