@@ -65,11 +65,11 @@ function isEditableTarget(el) {
   return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT';
 }
 
-// Bare-letter shortcuts (user-configurable, see the settings panel): read
-// the page, pause/resume, toggle scroll lock, and read from here (the
-// current selection, or wherever the mouse is hovering). Ignored while
-// typing in a field, or if a modifier key is held (so browser/site
-// shortcuts like Cmd+P for print are untouched).
+// User-configurable shortcuts (see the settings panel): read the page,
+// pause/resume, toggle scroll lock, read from here (the current selection,
+// or wherever the mouse is hovering), and slow down/speed up playback.
+// Ignored while typing in a field, or if a modifier key is held (so
+// browser/site shortcuts like Cmd+P for print are untouched).
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
   if (isEditableTarget(document.activeElement)) return;
@@ -83,6 +83,10 @@ document.addEventListener('keydown', (e) => {
     engine.toggleFollowLock();
   } else if (key && key === hotkeys.readFromHere) {
     readFromHere(document.elementFromPoint(lastMouseX, lastMouseY));
+  } else if (key && key === hotkeys.slowDown) {
+    engine.adjustRate(-0.1);
+  } else if (key && key === hotkeys.speedUp) {
+    engine.adjustRate(0.1);
   }
 });
 

@@ -19,4 +19,6 @@ export const DEFAULT_HOTKEYS = {
   pausePlay: 'p',
   lock: 'l',
   readFromHere: 'i',
+  slowDown: ',',
+  speedUp: '.',
 };
