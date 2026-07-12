@@ -45,6 +45,7 @@ const Popup = () => {
   const [rateText, setRateText] = useState('1.0');
   const [editingRate, setEditingRate] = useState(false);
   const [volumeDraft, setVolumeDraft] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const refreshState = useCallback(() => {
     sendToActiveTab({ type: MSG.GET_STATE }).then((res) => {
@@ -117,6 +118,13 @@ const Popup = () => {
   return (
     <div className="tts-popup">
       <div className="tts-header">
+        <button
+          className="tts-icon-toggle"
+          onClick={() => setShowSettings((v) => !v)}
+          title="Settings"
+        >
+          ⚙️
+        </button>
         <button
           className="tts-icon-toggle"
           onClick={handleToggleDarkMode}
@@ -195,31 +203,34 @@ const Popup = () => {
             />
           </div>
         </div>
-
-        <input
-          className="tts-color-input"
-          type="color"
-          title="Highlight color"
-          value={highlightColor}
-          onChange={(e) => handleColor(e.target.value)}
-        />
       </div>
 
-      {voices.length > 0 && (
-        <div className="tts-section">
-          <select
-            className="tts-select"
-            title="Voice"
-            value={(state && state.voiceURI) || ''}
-            onChange={(e) => handleVoice(e.target.value)}
-          >
-            <option value="">Default voice</option>
-            {voices.map((v) => (
-              <option key={v.voiceURI} value={v.voiceURI}>
-                {v.name} ({v.lang})
-              </option>
-            ))}
-          </select>
+      {showSettings && (
+        <div className="tts-section tts-settings">
+          <div className="tts-controls-row">
+            <input
+              className="tts-color-input"
+              type="color"
+              title="Highlight color"
+              value={highlightColor}
+              onChange={(e) => handleColor(e.target.value)}
+            />
+            {voices.length > 0 && (
+              <select
+                className="tts-select"
+                title="Voice"
+                value={(state && state.voiceURI) || ''}
+                onChange={(e) => handleVoice(e.target.value)}
+              >
+                <option value="">Default voice</option>
+                {voices.map((v) => (
+                  <option key={v.voiceURI} value={v.voiceURI}>
+                    {v.name} ({v.lang})
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
       )}
     </div>
