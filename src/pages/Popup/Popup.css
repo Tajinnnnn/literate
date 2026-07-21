@@ -6,6 +6,29 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+.tts-file-access-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #4a3f1a;
+  color: #ffe58a;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.tts-file-access-btn {
+  align-self: flex-start;
+  font: inherit;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ffe58a;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
 .tts-header {
   display: flex;
   align-items: center;

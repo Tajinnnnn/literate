@@ -8,6 +8,14 @@ const DEFAULT_RATE = 1;
 const DEFAULT_VOLUME = 1;
 const DEFAULT_HIGHLIGHT_COLOR = '#ffe58a';
 
+// Chrome silently stops speaking partway through a single very long
+// SpeechSynthesisUtterance — no error event, just a premature `end` — once
+// the text passes some undocumented length (see crbug.com/335907 and its
+// long tail of duplicates). Capping each utterance to a safe character
+// budget and chaining to the next slice keeps long documents (a whole PDF,
+// as opposed to a typical web article) readable end to end.
+const MAX_UTTERANCE_CHARS = 600;
+
 let cachedVoices = [];
 if ('speechSynthesis' in window) {
   cachedVoices = window.speechSynthesis.getVoices();
@@ -177,13 +185,48 @@ export class TTSEngine {
     return cachedVoices.find((v) => v.voiceURI === this.voiceURI) || null;
   }
 
+  // Chrome can leave speechSynthesis.speaking/pending true for a beat after
+  // onend actually fires; calling speak() while either is still true is what
+  // silently drops the next chunk instead of queuing it. Poll for a true
+  // idle state rather than guessing a fixed delay (capped so a wedged synth
+  // can't hang playback forever).
+  _scheduleNextChunk(chunkEnd, prevUtterance, attempt = 0) {
+    if (this.utterance !== prevUtterance) return;
+    const synth = window.speechSynthesis;
+    if ((synth.speaking || synth.pending) && attempt < 40) {
+      setTimeout(() => this._scheduleNextChunk(chunkEnd, prevUtterance, attempt + 1), 50);
+      return;
+    }
+    this._speakFrom(chunkEnd);
+  }
+
+  // Finds the end of the word slice starting at indexBase that fits under
+  // MAX_UTTERANCE_CHARS, preferring to break right after a sentence-ending
+  // word (one ending in . ! or ?) near the limit so the gap between chunks
+  // lands on a natural pause instead of mid-sentence.
+  _findChunkEnd(indexBase) {
+    let cursor = 0;
+    let end = indexBase;
+    let lastSentenceEnd = -1;
+    while (end < this.words.length) {
+      const nextCursor = cursor + this.words[end].length + 1;
+      if (end > indexBase && nextCursor > MAX_UTTERANCE_CHARS) break;
+      cursor = nextCursor;
+      end++;
+      if (/[.!?]$/.test(this.words[end - 1])) lastSentenceEnd = end;
+    }
+    if (lastSentenceEnd > indexBase && lastSentenceEnd < end) return lastSentenceEnd;
+    return end;
+  }
+
   _speakFrom(indexBase) {
     if (indexBase >= this.words.length) {
       this.stop();
       return;
     }
     this.indexBase = indexBase;
-    const slice = this.words.slice(indexBase);
+    const chunkEnd = this._findChunkEnd(indexBase);
+    const slice = this.words.slice(indexBase, chunkEnd);
     const text = slice.join(' ');
 
     const offsets = [];
@@ -198,6 +241,13 @@ export class TTSEngine {
     utterance.volume = this.volume;
     const voice = this._resolveVoice();
     if (voice) utterance.voice = voice;
+
+    // TEMP DIAGNOSTIC (see PDF-skip investigation): log exactly what text
+    // each utterance covers, so a skip can be pinned to "this whole chunk
+    // never played" vs. "the engine jumped forward mid-utterance".
+    utterance.onstart = () => {
+      console.log('[literate] chunk start', { indexBase, chunkEnd, length: text.length, text });
+    };
 
     utterance.onboundary = (e) => {
       if (e.name && e.name !== 'word') return;
@@ -222,7 +272,11 @@ export class TTSEngine {
 
     utterance.onend = () => {
       if (this.utterance !== utterance) return;
-      this.stop();
+      if (chunkEnd < this.words.length) {
+        this._scheduleNextChunk(chunkEnd, utterance);
+      } else {
+        this.stop();
+      }
     };
     utterance.onerror = (e) => {
       if (this.utterance !== utterance) return;

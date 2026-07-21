@@ -50,6 +50,7 @@ const Popup = () => {
   const [state, setState] = useState(null);
   const [voices, setVoices] = useState([]);
   const [unavailable, setUnavailable] = useState(false);
+  const [fileAccessDenied, setFileAccessDenied] = useState(false);
 
   const [rateText, setRateText] = useState('1.0');
   const [editingRate, setEditingRate] = useState(false);
@@ -77,6 +78,16 @@ const Popup = () => {
     const interval = setInterval(refreshState, 800);
     return () => clearInterval(interval);
   }, [refreshState]);
+
+  useEffect(() => {
+    if (chrome.extension && chrome.extension.isAllowedFileSchemeAccess) {
+      chrome.extension.isAllowedFileSchemeAccess((allowed) => setFileAccessDenied(!allowed));
+    }
+  }, []);
+
+  const openFileAccessSettings = () => {
+    chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
+  };
 
   useEffect(() => {
     if (!editingRate && state && typeof state.rate === 'number') {
@@ -142,6 +153,14 @@ const Popup = () => {
   if (unavailable) {
     return (
       <div className="tts-popup">
+        {fileAccessDenied && (
+          <div className="tts-file-access-banner">
+            <span>Enable &quot;Allow access to file URLs&quot; to read local files/PDFs.</span>
+            <button className="tts-file-access-btn" onClick={openFileAccessSettings}>
+              Open Settings
+            </button>
+          </div>
+        )}
         <p className="tts-hint">
           This page can&apos;t be read aloud. Try a regular website (not a Chrome
           system page), then reopen this popup.
@@ -159,6 +178,14 @@ const Popup = () => {
 
   return (
     <div className="tts-popup">
+      {fileAccessDenied && (
+        <div className="tts-file-access-banner">
+          <span>Enable &quot;Allow access to file URLs&quot; to read local files/PDFs.</span>
+          <button className="tts-file-access-btn" onClick={openFileAccessSettings}>
+            Open Settings
+          </button>
+        </div>
+      )}
       <div className="tts-header">
         <button
           className="tts-icon-toggle"

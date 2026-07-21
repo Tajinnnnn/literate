@@ -11,10 +11,10 @@
   "icons": {
     "128": "icon-128.png"
   },
-  "permissions": ["storage", "contextMenus"],
+  "permissions": ["storage", "contextMenus", "webNavigation"],
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
       "js": ["contentScript.bundle.js"],
       "css": ["content.styles.css"]
     }

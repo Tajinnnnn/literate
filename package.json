@@ -10,6 +10,7 @@
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },
   "dependencies": {
+    "pdfjs-dist": "^4.10.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
