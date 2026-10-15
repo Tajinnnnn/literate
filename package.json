@@ -1,6 +1,6 @@
 {
   "name": "literate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Browsing helpers: reads any webpage or selected text aloud with word-by-word highlighting, hover playback controls, and a one-click dark mode.",
   "license": "MIT",
   "scripts": {

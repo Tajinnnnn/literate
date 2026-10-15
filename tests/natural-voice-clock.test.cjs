@@ -5,7 +5,8 @@ const vm = require('node:vm');
 const babel = require('@babel/core');
 const { code } = babel.transformFileSync(path.join(__dirname, '../src/pages/Content/modules/naturalVoiceEngine.js'), { babelrc: false, configFile: false, plugins: [require.resolve('@babel/plugin-transform-modules-commonjs')] });
 const exportsObject = {};
-vm.runInNewContext(code, { chrome: {storage:{sync:{set(){}}}}, exports: exportsObject, require(id) {
+class FakeAudio { play() { return Promise.resolve(); } pause() {} removeAttribute() {} load() {} }
+vm.runInNewContext(code, { Audio: FakeAudio, URL: {createObjectURL: () => 'blob:test', revokeObjectURL() {}}, requestAnimationFrame: () => 1, cancelAnimationFrame() {}, chrome: {storage:{sync:{set(){}}}}, exports: exportsObject, require(id) {
   if (id.endsWith('wordWrapper')) return { wrapPageWords: () => ({ words: ['article'], spans: [] }), wrapElementWords: root => ({ words: [root.label], spans: [] }) };
   if (id.endsWith('voiceAudio.mjs')) return require('../src/shared/voiceAudio.mjs');
   if (id.endsWith('readingTranscript.mjs')) return require('../src/shared/readingTranscript.mjs');
@@ -69,4 +70,26 @@ test('a chosen section remains the reading scope on subsequent play',async()=>{
  const root={isConnected:true,label:'section'};
  assert.equal((await engine.startSection(root)).first,'section');assert.equal((await engine.start('page')).first,'section');
  root.isConnected=false;assert.equal((await engine.start('page')).first,'article');
+});
+
+test('slow continuation waits for the prefetched chunk and reports buffering',async()=>{
+ const engine=engineState();Object.assign(engine,{words:'First sentence. Second sentence. Third sentence. Fourth sentence.'.split(' '),voiceId:'af_heart',rate:1,volume:1,_generation:1});
+ const requests=[];let finish;
+ engine.tts={generate:text=>{requests.push(text);return new Promise(resolve=>{finish=resolve;});}};
+ engine._playChunk({indexBase:0,chunkEnd:2,audio:new Float32Array(24000),samplingRate:24000});
+ const first=engine.audioElement;
+ first.onended();
+ assert.equal(engine.getState().isSynthesizing,true);
+ assert.equal(requests.length,1,'the unfinished prefetch must be reused');
+ finish({audio:new Float32Array(24000),sampling_rate:24000});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(requests.length,1);
+ assert.equal(engine.currentChunk.indexBase,2);
+ assert.equal(engine.currentChunk.chunkEnd,engine.words.length);
+ assert.equal(engine.getState().isSynthesizing,false);
+});
+
+test('CPU continuation stays short so it can be prepared during playback',()=>{
+ const engine=engineState();engine.executionBackend='wasm';engine.words='First sentence. Second sentence. Third sentence. Fourth sentence.'.split(' ');
+ assert.equal(engine._findChunkEnd(2),4);
 });

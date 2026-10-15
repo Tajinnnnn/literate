@@ -259,6 +259,8 @@ export class NaturalVoiceEngine {
   }
 
   _findChunkEnd(indexBase) {
+    // CPU inference needs smaller continuations to avoid long silent gaps.
+    if (this.executionBackend === 'wasm') return firstChunkEnd(this.words, indexBase);
     let cursor = 0;
     let end = indexBase;
     let lastSentenceEnd = -1;
@@ -306,13 +308,12 @@ export class NaturalVoiceEngine {
     });
   }
 
-  async _playFrom(indexBase) {
+  async _playFrom(indexBase, chunkEnd = firstChunkEnd(this.words, indexBase)) {
     if (indexBase >= this.words.length) {
       this.stop({ completed: true });
       return;
     }
     const generation = this._generation;
-    const chunkEnd = firstChunkEnd(this.words, indexBase);
 
     let chunk;
     try {
@@ -345,13 +346,20 @@ export class NaturalVoiceEngine {
     const generation = this._generation;
     source.onended = () => {
       if (this.currentSource !== source || generation !== this._generation) return;
+      this._setCurrentWord(chunkEnd - 1);
+      this.currentSource = null;
+      this.audioElement = null;
+      this.currentChunk = null;
+      if (this._rafHandle) cancelAnimationFrame(this._rafHandle);
       if (chunkEnd < this.words.length) {
         const pending = this._pendingNextChunk;
         this._pendingNextChunk = null;
         if (pending && pending.indexBase === chunkEnd) {
           this._playChunk(pending);
         } else {
-          this._playFrom(chunkEnd);
+          // Request exactly the prefetched range so a slow, unfinished
+          // synthesis is shared instead of queuing a second shorter chunk.
+          this._playFrom(chunkEnd, this._findChunkEnd(chunkEnd));
         }
       } else {
         this.stop({ completed: true });
