@@ -1,3 +1,4 @@
+import { selectReadingRoot, isRelatedSection } from '../../../shared/readingRoot.mjs';
 export const WORD_CLASS = '__ttsxr_word';
 
 const SKIP_TAGS = new Set([
@@ -28,13 +29,30 @@ function isElementHidden(el) {
   );
 }
 
-function isSkippableAncestor(node, excludeLandmarks) {
+// ---- Paragraph/section boundary detection (for rewind) --------------------
+// A "boundary" is the word index where a new block-level ancestor begins.
+// Computed-style detection (not a tag whitelist) so this works uniformly
+// across arbitrary live web pages' div-heavy layouts, not just semantic
+// <p>/<li>/<h2> markup.
+const BLOCK_DISPLAYS = new Set(['block', 'list-item', 'table-row', 'table-cell', 'flex', 'grid']);
+
+function getBlockAncestor(node, root) {
+  let el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+  while (el && el !== root) {
+    if (BLOCK_DISPLAYS.has(window.getComputedStyle(el).display)) return el;
+    el = el.parentElement;
+  }
+  return root;
+}
+
+function isSkippableAncestor(node, excludeLandmarks, root) {
   let el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
   while (el) {
     if (SKIP_TAGS.has(el.tagName)) return true;
     if (el.hasAttribute && el.hasAttribute('data-ttsxr-ignore')) return true;
-    if (excludeLandmarks) {
+    if (excludeLandmarks && el !== root && root.contains(el)) {
       if (LANDMARK_TAGS.has(el.tagName)) return true;
+      if (isRelatedSection(el)) return true;
       const role = el.getAttribute && el.getAttribute('role');
       if (role && LANDMARK_ROLES.has(role.toLowerCase())) return true;
     }
@@ -45,18 +63,14 @@ function isSkippableAncestor(node, excludeLandmarks) {
 }
 
 export function getPageRoot() {
-  return (
-    document.querySelector('main, [role="main"]') ||
-    document.querySelector('article') ||
-    document.body
-  );
+  return selectReadingRoot(document);
 }
 
 function collectTextNodes(root, filterNode, excludeLandmarks) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-      if (isSkippableAncestor(node, excludeLandmarks)) return NodeFilter.FILTER_REJECT;
+      if (isSkippableAncestor(node, excludeLandmarks, root)) return NodeFilter.FILTER_REJECT;
       if (filterNode && !filterNode(node)) return NodeFilter.FILTER_SKIP;
       return NodeFilter.FILTER_ACCEPT;
     },
@@ -68,6 +82,25 @@ function collectTextNodes(root, filterNode, excludeLandmarks) {
     n = walker.nextNode();
   }
   return nodes;
+}
+
+// Shared by wrapPageWords/wrapSelectionWords: wraps every node's words and
+// records the word index of each new paragraph/block-level boundary along
+// the way, sharing the getComputedStyle lookup pattern with isElementHidden.
+function wrapNodesWithBoundaries(nodes, root) {
+  const words = [];
+  const spans = [];
+  const boundaries = [];
+  let lastBlock = null;
+  nodes.forEach((node) => {
+    const block = getBlockAncestor(node, root);
+    if (block !== lastBlock) {
+      boundaries.push(words.length);
+      lastBlock = block;
+    }
+    wrapTextNode(node, words, spans);
+  });
+  return { words, spans, boundaries };
 }
 
 function wrapTextNode(textNode, words, spans) {
@@ -100,10 +133,15 @@ function wrapTextNode(textNode, words, spans) {
 export function wrapPageWords() {
   const root = getPageRoot();
   const nodes = collectTextNodes(root, null, true);
-  const words = [];
-  const spans = [];
-  nodes.forEach((node) => wrapTextNode(node, words, spans));
-  return { words, spans, root };
+  const { words, spans, boundaries } = wrapNodesWithBoundaries(nodes, root);
+  return { words, spans, boundaries, root };
+}
+
+// Honor the chosen root (even a sidebar), while skipping nested page chrome.
+export function wrapElementWords(root) {
+  if (!root?.isConnected) return null;
+  const nodes = collectTextNodes(root, null, true);
+  return { ...wrapNodesWithBoundaries(nodes, root), root };
 }
 
 export function wrapSelectionWords() {
@@ -128,10 +166,8 @@ export function wrapSelectionWords() {
   const nodes = collectTextNodes(container, (node) => range.intersectsNode(node), false);
   sel.removeAllRanges();
 
-  const words = [];
-  const spans = [];
-  nodes.forEach((node) => wrapTextNode(node, words, spans));
-  return { words, spans, root: container };
+  const { words, spans, boundaries } = wrapNodesWithBoundaries(nodes, container);
+  return { words, spans, boundaries, root: container };
 }
 
 function countWords(text) {
@@ -166,6 +202,37 @@ export function getWordIndexBeforeSelection() {
     break;
   }
   return index;
+}
+
+// Finds the boundary of the paragraph containing currentIndex (the last
+// boundary <= currentIndex).
+function currentBoundaryIndex(boundaries, currentIndex) {
+  let i = -1;
+  for (let b = 0; b < boundaries.length; b++) {
+    if (boundaries[b] <= currentIndex) i = b;
+    else break;
+  }
+  return i;
+}
+
+// Always steps to the previous paragraph's first word (not a restart of the
+// current one) - clamps to the very first word once already in the first
+// paragraph.
+export function computeRewindIndex(boundaries, currentIndex) {
+  if (!boundaries || !boundaries.length) return 0;
+  const i = currentBoundaryIndex(boundaries, currentIndex);
+  if (i <= 0) return 0;
+  return boundaries[i - 1];
+}
+
+// Steps to the next paragraph's first word - no-op (returns null) once
+// already in the last paragraph, so the caller can leave playback alone
+// rather than jumping past the end of the content.
+export function computeForwardIndex(boundaries, currentIndex) {
+  if (!boundaries || !boundaries.length) return null;
+  const i = currentBoundaryIndex(boundaries, currentIndex);
+  const next = i + 1;
+  return next < boundaries.length ? boundaries[next] : null;
 }
 
 export function unwrapWords(spans) {

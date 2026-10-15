@@ -11,7 +11,9 @@ var ReactRefreshTypeScript = require('react-refresh-typescript');
 
 const ASSET_PATH = process.env.ASSET_PATH || '/';
 
-var alias = {};
+// Browser builds must stub Node-only helpers rather than throwing when
+// kokoro-js imports them. They are used only by its Node audio-file APIs.
+var alias = { 'fs/promises': false, path: false };
 
 // load the secrets
 var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
@@ -38,6 +40,8 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
+    voiceHost: path.join(__dirname, 'src', 'pages', 'VoiceHost', 'index.js'),
+    voiceWorker: { import: path.join(__dirname, 'src', 'pages', 'VoiceHost', 'modelWorker.js'), chunkLoading: 'import-scripts' },
     newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
     options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
@@ -134,11 +138,24 @@ var options = {
       .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
   },
   plugins: [
+    new HtmlWebpackPlugin({ template: path.join(__dirname, 'src/pages/VoiceHost/index.html'), filename: 'voice-host.html', chunks: ['voiceHost'], cache: false }),
     isDevelopment && new ReactRefreshWebpackPlugin(),
     new CleanWebpackPlugin({ verbose: false }),
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(['NODE_ENV']),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.mjs',
+          to: 'ort-wasm-simd-threaded.jsep.mjs',
+        },
+        {
+          from: 'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.wasm',
+          to: 'ort-wasm-simd-threaded.jsep.wasm',
+        },
+      ],
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -169,6 +186,10 @@ var options = {
     }),
     new CopyWebpackPlugin({
       patterns: [
+        ...[16, 32, 48].map(size => ({ from: `src/assets/img/icon-${size}.png`, to: `icon-${size}.png` })),
+        {
+          from: 'src/assets/img/logo.svg', to: 'logo.svg',
+        },
         {
           from: 'src/assets/img/icon-128.png',
           to: path.join(__dirname, 'build'),

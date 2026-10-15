@@ -75,7 +75,9 @@ export class HoverToolbar {
       <div class="bar" title="Drag the empty space to move">
         <span class="grip" title="Drag to move">⠿</span>
         <button class="lock" title="Lock scroll to reading position">🔓</button>
+        <button class="rewind" title="Back to previous paragraph">⏮</button>
         <button class="playpause" title="Play/Pause (P)">⏸</button>
+        <button class="forward" title="Forward to next paragraph">⏭</button>
         <div class="rate-group">
           <button class="slower" title="Slower">−</button>
           <input class="rate" type="text" inputmode="decimal" value="1.0" title="Speed" />
@@ -87,15 +89,25 @@ export class HoverToolbar {
     this.bar = this.shadow.querySelector('.bar');
     this.playBtn = this.shadow.querySelector('.playpause');
     this.lockBtn = this.shadow.querySelector('.lock');
+    this.rewindBtn = this.shadow.querySelector('.rewind');
+    this.forwardBtn = this.shadow.querySelector('.forward');
     this.rateInput = this.shadow.querySelector('.rate');
 
     this.lockBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.engine.toggleFollowLock();
     });
+    this.rewindBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.engine.rewind();
+    });
     this.playBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.engine.togglePause();
+    });
+    this.forwardBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.engine.fastForward();
     });
     this.shadow.querySelector('.slower').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -226,8 +238,7 @@ export class HoverToolbar {
   }
 
   refresh() {
-    const synth = window.speechSynthesis;
-    this.playBtn.textContent = synth && synth.paused ? '▶' : '⏸';
+    this.playBtn.textContent = this.engine.isPaused() ? '▶' : '⏸';
     this.lockBtn.textContent = this.engine.followLock ? '🔒' : '🔓';
     this.lockBtn.title = this.engine.followLock
       ? 'Scroll lock: on (page follows the reader) — Shortcut: L'

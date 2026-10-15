@@ -1,15 +1,30 @@
+import { pickReadingSection } from '../pages/Content/modules/sectionPicker';
 import { TTSEngine } from '../pages/Content/modules/ttsEngine';
+import { NaturalVoiceEngine } from '../pages/Content/modules/naturalVoiceEngine';
 import { getWordIndexBeforeSelection } from '../pages/Content/modules/wordWrapper';
 import { initDarkMode, isDarkModeActive, toggleDarkMode } from '../pages/Content/modules/darkMode';
 import { MSG, DEFAULT_HOTKEYS } from './messages';
 
-// Wires up the TTS engine, hotkeys, context-menu/message handling, and dark
+// Wires up the TTS engines, hotkeys, context-menu/message handling, and dark
 // mode against whatever document this runs in — the live webpage (content
 // script) or an extension-hosted reading surface (e.g. the PDF viewer). Both
 // need identical reading behavior, so this is the one place it's defined.
 export function initReadingSurface() {
-  const engine = new TTSEngine();
+  const surfaceId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const systemEngine = new TTSEngine();
+  const naturalEngine = new NaturalVoiceEngine();
   initDarkMode();
+
+  // Natural Kokoro voices are the default. Old System Voice preferences
+  // do not override the user's choice to remove robotic voices.
+  let naturalVoiceEnabled = true;
+  if (chrome.storage && chrome.storage.sync) {
+    chrome.storage.sync.set({ ttsNaturalVoiceEnabled: true });
+  }
+
+  function activeEngine() {
+    return naturalVoiceEnabled ? naturalEngine : systemEngine;
+  }
 
   let hotkeys = { ...DEFAULT_HOTKEYS };
   if (chrome.storage && chrome.storage.sync) {
@@ -28,6 +43,7 @@ export function initReadingSurface() {
   // Captured just before the native context menu opens, so the "Read from
   // here" menu item knows where on the page the user right-clicked.
   let lastContextMenuTarget = null;
+  let cancelSectionPicker = null;
   document.addEventListener(
     'contextmenu',
     (e) => {
@@ -56,12 +72,21 @@ export function initReadingSurface() {
   function readFromHere(fallbackTarget) {
     const selectionIndex = getWordIndexBeforeSelection();
     return selectionIndex !== null
-      ? engine.startFromWordIndex(selectionIndex)
-      : engine.startFromElement(fallbackTarget);
+      ? activeEngine().startFromWordIndex(selectionIndex)
+      : activeEngine().startFromElement(fallbackTarget);
   }
 
   function fullState() {
-    return { ...engine.getState(), darkMode: isDarkModeActive(), hotkeys };
+    return {
+      ...activeEngine().getState(),
+      title: document.title || 'Untitled page',
+      site: window.location.hostname || 'Local document',
+      surfaceId,
+      darkMode: isDarkModeActive(),
+      hotkeys,
+      naturalVoiceEnabled,
+      naturalVoice: naturalEngine.getNaturalVoiceMeta(),
+    };
   }
 
   function isEditableTarget(el) {
@@ -81,85 +106,150 @@ export function initReadingSurface() {
 
     const key = e.key.toLowerCase();
     if (key && key === hotkeys.readPage) {
-      engine.start('page');
+      activeEngine().start('page');
     } else if (key && key === hotkeys.pausePlay) {
-      engine.togglePause();
+      activeEngine().togglePause();
     } else if (key && key === hotkeys.lock) {
-      engine.toggleFollowLock();
+      activeEngine().toggleFollowLock();
     } else if (key && key === hotkeys.readFromHere) {
       readFromHere(document.elementFromPoint(lastMouseX, lastMouseY));
     } else if (key && key === hotkeys.slowDown) {
-      engine.adjustRate(-0.1);
+      activeEngine().adjustRate(-0.1);
     } else if (key && key === hotkeys.speedUp) {
-      engine.adjustRate(0.1);
+      activeEngine().adjustRate(0.1);
     }
   });
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    switch (message.type) {
-      case MSG.GET_STATE:
-        sendResponse(fullState());
-        break;
-      case MSG.GET_VOICES: {
-        const voices = engine.getVoices();
-        if (voices.length) {
-          sendResponse({ voices });
-        } else {
-          setTimeout(() => sendResponse({ voices: engine.getVoices() }), 300);
-        }
-        break;
-      }
-      case MSG.READ_PAGE:
-        sendResponse({ ...engine.start('page'), state: fullState() });
-        break;
-      case MSG.READ_SELECTION:
-        sendResponse({ ...engine.start('selection'), state: fullState() });
-        break;
-      case MSG.READ_FROM_HERE: {
-        const result = readFromHere(lastContextMenuTarget);
-        sendResponse({ ...result, state: fullState() });
-        break;
-      }
-      case MSG.TOGGLE_PAUSE:
-        engine.togglePause();
-        sendResponse(fullState());
-        break;
-      case MSG.STOP:
-        engine.stop();
-        sendResponse(fullState());
-        break;
-      case MSG.SET_RATE:
-        engine.setRate(message.rate);
-        sendResponse(fullState());
-        break;
-      case MSG.SET_VOICE:
-        engine.setVoice(message.voiceURI);
-        sendResponse(fullState());
-        break;
-      case MSG.SET_VOLUME:
-        engine.setVolume(message.volume);
-        sendResponse(fullState());
-        break;
-      case MSG.SET_HIGHLIGHT_COLOR:
-        engine.setHighlightColor(message.color);
-        sendResponse(fullState());
-        break;
-      case MSG.TOGGLE_DARK_MODE:
-        toggleDarkMode();
-        sendResponse(fullState());
-        break;
-      case MSG.SET_HOTKEYS:
-        hotkeys = { ...DEFAULT_HOTKEYS, ...message.hotkeys };
-        if (chrome.storage && chrome.storage.sync) {
-          chrome.storage.sync.set({ ttsHotkeys: hotkeys });
-        }
-        sendResponse(fullState());
-        break;
-      default:
-        break;
+    // A detached player must never control a different document after navigation.
+    if (message.expectedSurfaceId && message.expectedSurfaceId !== surfaceId) {
+      sendResponse(null);
+      return false;
     }
+    (async () => {
+      switch (message.type) {
+        case MSG.GET_STATE:
+          // Load only when the popup is opened or reading starts, not for
+          // every page where the content script is installed.
+          if (naturalVoiceEnabled && naturalEngine.modelStatus === 'idle') {
+            naturalEngine.ensureModelLoaded().catch(() => {});
+          }
+          sendResponse(fullState());
+          break;
+        case MSG.SEEK_WORD:
+          sendResponse({ ...(await naturalEngine.seekToWord(message.index, message.sessionId)), state: fullState() });
+          break;
+        case MSG.GET_TRANSCRIPT:
+          sendResponse(naturalEngine.getTranscript());
+          break;
+        case MSG.GET_VOICES: {
+          // Always the OS voice list — a separate, always-visible picker
+          // from the Kokoro voices under naturalVoice.voices in fullState().
+          const voices = systemEngine.getVoices();
+          if (voices.length) {
+            sendResponse({ voices });
+          } else {
+            setTimeout(() => sendResponse({ voices: systemEngine.getVoices() }), 300);
+          }
+          break;
+        }
+        case MSG.PICK_SECTION: {
+          cancelSectionPicker?.();
+          const wasPlaying = naturalEngine.active && !naturalEngine.isPaused();
+          if (wasPlaying) naturalEngine.togglePause();
+          cancelSectionPicker = pickReadingSection(element => {
+            cancelSectionPicker = null; naturalEngine.startSection(element);
+          }, () => {
+            cancelSectionPicker = null;
+            if (wasPlaying && naturalEngine.active && naturalEngine.isPaused()) naturalEngine.togglePause();
+          });
+          sendResponse({ ok: true });
+          break;
+        }
+        case MSG.RESET_SECTION:
+          naturalEngine.readingRoot = null;
+          sendResponse({ ...(await naturalEngine.start('page')), state: fullState() });
+          break;
+        case MSG.READ_PAGE:
+          sendResponse({ ...(await activeEngine().start('page')), state: fullState() });
+          break;
+        case MSG.READ_SELECTION:
+          sendResponse({ ...(await activeEngine().start('selection')), state: fullState() });
+          break;
+        case MSG.READ_FROM_HERE: {
+          const result = await readFromHere(lastContextMenuTarget);
+          sendResponse({ ...result, state: fullState() });
+          break;
+        }
+        case MSG.TOGGLE_PAUSE:
+          activeEngine().togglePause();
+          sendResponse(fullState());
+          break;
+        case MSG.REWIND:
+          activeEngine().rewind();
+          sendResponse(fullState());
+          break;
+        case MSG.FAST_FORWARD:
+          activeEngine().fastForward();
+          sendResponse(fullState());
+          break;
+        case MSG.STOP:
+          activeEngine().stop();
+          sendResponse(fullState());
+          break;
+        case MSG.SET_RATE:
+          activeEngine().setRate(message.rate);
+          sendResponse(fullState());
+          break;
+        case MSG.SET_VOICE:
+          // OS voice — always targets System Voice, regardless of which
+          // mode is currently active, so the choice is there when the user
+          // switches back to it.
+          systemEngine.setVoice(message.voiceURI);
+          sendResponse(fullState());
+          break;
+        case MSG.SET_VOLUME:
+          activeEngine().setVolume(message.volume);
+          sendResponse(fullState());
+          break;
+        case MSG.SET_HIGHLIGHT_COLOR:
+          activeEngine().setHighlightColor(message.color);
+          sendResponse(fullState());
+          break;
+        case MSG.TOGGLE_DARK_MODE:
+          toggleDarkMode();
+          sendResponse(fullState());
+          break;
+        case MSG.SET_HOTKEYS:
+          hotkeys = { ...DEFAULT_HOTKEYS, ...message.hotkeys };
+          if (chrome.storage && chrome.storage.sync) {
+            chrome.storage.sync.set({ ttsHotkeys: hotkeys });
+          }
+          sendResponse(fullState());
+          break;
+        case MSG.SET_NATURAL_VOICE_ENABLED:
+          // Stop whichever engine was mid-read before switching — both
+          // wrap the same live page into word spans, so leaving the old
+          // one active would fight the new one over the same DOM.
+          systemEngine.stop();
+          naturalEngine.stop();
+          naturalVoiceEnabled = !!message.enabled;
+          if (chrome.storage && chrome.storage.sync) {
+            chrome.storage.sync.set({ ttsNaturalVoiceEnabled: naturalVoiceEnabled });
+          }
+          if (naturalVoiceEnabled) naturalEngine.ensureModelLoaded().catch(() => {});
+          sendResponse(fullState());
+          break;
+        case MSG.SET_NATURAL_VOICE:
+          naturalEngine.setVoice(message.voiceId);
+          sendResponse(fullState());
+          break;
+        default:
+          break;
+      }
+    })();
     return true;
   });
 
-  return engine;
+  return { systemEngine, naturalEngine };
 }

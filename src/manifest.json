@@ -3,20 +3,65 @@
   "name": "Literate",
   "description": "Browsing helpers: reads any webpage or selected text aloud with word-by-word highlighting, hover playback controls, and a one-click dark mode.",
   "version": "1.0.0",
-  "background": { "service_worker": "background.bundle.js" },
+  "background": {
+    "service_worker": "background.bundle.js"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon-34.png"
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
   },
   "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
     "128": "icon-128.png"
   },
-  "permissions": ["storage", "contextMenus", "webNavigation"],
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "webNavigation",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://huggingface.co/*",
+    "https://*.hf.co/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "js": ["contentScript.bundle.js"],
-      "css": ["content.styles.css"]
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file:///*"
+      ],
+      "js": [
+        "contentScript.bundle.js"
+      ],
+      "css": [
+        "content.styles.css"
+      ]
     }
-  ]
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "*.bundle.js",
+        "*.wasm",
+        "*.mjs"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file:///*"
+      ]
+    }
+  ],
+  "minimum_chrome_version": "116"
 }

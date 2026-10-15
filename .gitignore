@@ -22,3 +22,8 @@
 
 # secrets
 secrets.*.js
+
+# Local release packages and temporary environment files
+/releases/
+.env
+.env.*

@@ -1,3 +1,4 @@
+import './voiceHost';
 import { MSG } from '../../shared/messages';
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -43,3 +44,36 @@ chrome.webNavigation.onBeforeNavigate.addListener(
   },
   { url: [{ urlMatches: '(?i)^file://.*\\.pdf$' }] }
 );
+
+// Discover existing player windows instead of relying on service-worker memory.
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type !== MSG.OPEN_PLAYER) return false;
+  const tabId = message.tabId;
+  if (!Number.isSafeInteger(tabId) || tabId <= 0) {
+    sendResponse({ ok: false });
+    return false;
+  }
+  chrome.tabs.get(tabId, (sourceTab) => {
+    if (chrome.runtime.lastError || !sourceTab) {
+      sendResponse({ ok: false });
+      return;
+    }
+    const base = chrome.runtime.getURL('popup.html');
+    const url = `${base}?mini=1&tabId=${tabId}&surfaceId=${encodeURIComponent(message.surfaceId || '')}`;
+    chrome.windows.getAll({ populate: true }, (windows) => {
+      const existing = windows.find(w => w.type === 'popup' && w.tabs?.some(t => t.url?.startsWith(`${base}?mini=1&`)));
+      if (existing) {
+        const playerTab = existing.tabs.find(t => t.url?.startsWith(`${base}?mini=1&`));
+        if (playerTab.url !== url) chrome.tabs.update(playerTab.id, { url });
+        chrome.windows.update(existing.id, { focused: true, width: 340, height: 440 });
+        sendResponse({ ok: true });
+      } else {
+        chrome.windows.create({ url, type: 'popup', width: 340, height: 440, focused: true }, () => {
+          const error = chrome.runtime.lastError;
+          sendResponse({ ok: !error });
+        });
+      }
+    });
+  });
+  return true;
+});

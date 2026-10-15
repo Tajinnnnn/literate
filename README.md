@@ -1,150 +1,52 @@
-<img src="src/assets/img/icon-128.png" width="64"/>
+<img src="src/assets/img/logo.svg" width="64" alt="Literate logo" />
 
-# Chrome Extension (MV3) Boilerplate with React 18 and Webpack 5
+# Literate
 
-[![npm](https://img.shields.io/npm/v/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
-[![npm-download](https://img.shields.io/npm/dw/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
-[![npm](https://img.shields.io/npm/dm/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
+A minimal Chrome extension that turns articles, selected text, and local PDFs into natural speech. Speech runs locally with Kokoro—no VoiceStudio, account, API key, or speech server required.
 
-## Announcements
+## Install the beta
 
-- Recently updated from **[React](https://reactjs.org)** ~~17~~ to **18**!
-- **_This boilerplate adopts [Manifest V3](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-overview/)!_**
-  - For V2 users, please check out the [manifest-v2](https://github.com/lxieyang/chrome-extension-boilerplate-react/tree/manifest-v2) branch, or use version [3.x](https://www.npmjs.com/package/chrome-extension-boilerplate-react/v/3.3.0).
-  - Check out the [Manifest V3 Migration Guide](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/).
-- Recently added [devtools](https://developer.chrome.com/docs/extensions/mv3/devtools/) Support! Thanks [GeekaholicLin](https://github.com/lxieyang/chrome-extension-boilerplate-react/issues/17)!
-- Recently updated from **[Webpack Dev Server](https://webpack.js.org/configuration/dev-server/)** ~~3.x~~ to **4.x** and **[Webpack](https://webpack.js.org/)** ~~4~~ to **5**!
-- Recently added [TypeScript](https://www.typescriptlang.org/) Support!
+1. Download the ZIP from [Releases](https://github.com/Tajinnnnn/literate/releases).
+2. Extract it into a permanent folder.
+3. Open Chrome's Extensions page, enable **Developer mode**, choose **Load unpacked**, and select the extracted folder.
+4. Open an article and click Literate. The first use downloads and warms the voice model.
 
-## Features
+Chrome 116 or newer is required. A compatible GPU gives the best performance; a CPU/WASM fallback is included. The GPU model download is approximately 315 MB and is cached separately from the extension. The shared worker keeps one loaded model across pages until Chrome or the extension restarts.
 
-This is a basic Chrome Extensions boilerplate to help you write modular and modern Javascript code, load CSS easily and [automatic reload the browser on code changes](https://webpack.github.io/docs/webpack-dev-server.html#automatic-refresh).
+## Reading
 
-This boilerplate is updated with:
+- **Play** reads the main article. Detection prefers the article body and skips navigation, sidebars, and common related-story blocks.
+- **Choose section** outlines a page element. Point at the text, use **↑** to expand or **↓** to narrow, then click or press Enter. Escape cancels. The selection remains the reading scope on that page; **Read article** resets it.
+- Highlight text and use the **Read selection aloud** context menu for a precise text selection.
+- Open the **mini-player** for synchronized text. Click any word to resume from there.
+- Use **Keep on top** in the mini-player to open Chrome's floating Picture-in-Picture window.
+- Change speed during playback without regenerating the voice. Settings also offers voices, volume, shortcuts, and page highlighting.
+- Choose light or dark mode and an accent color. Periwinkle is the default.
 
-- [Chrome Extension Manifest V3](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-overview/)
-- [React 18](https://reactjs.org)
-- [Webpack 5](https://webpack.js.org/)
-- [Webpack Dev Server 4](https://webpack.js.org/configuration/dev-server/)
-- [React Refresh](https://www.npmjs.com/package/react-refresh)
-- [react-refresh-webpack-plugin](https://github.com/pmmmwh/react-refresh-webpack-plugin)
-- [eslint-config-react-app](https://www.npmjs.com/package/eslint-config-react-app)
-- [Prettier](https://prettier.io/)
-- [TypeScript](https://www.typescriptlang.org/)
+Automatic article detection is best effort; Choose section is available when a site's layout needs a more precise reading area. Local PDFs require enabling **Allow access to file URLs** for Literate in Chrome's extension settings.
 
-This boilerplate is heavily inspired by and adapted from [https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate), with additional support for React 18 features, Webpack 5, and Webpack Dev Server 4.
+## Build from source
 
-Please open up an issue to nudge me to keep the npm packages up-to-date. FYI, it takes time to make different packages with different versions work together nicely.
+Requires Node.js 22.12+ (Node 24 recommended) and npm.
 
-## Installing and Running
-
-### Procedures:
-
-1. Check if your [Node.js](https://nodejs.org/) version is >= **18**.
-2. Clone this repository.
-3. Change the package's `name`, `description`, and `repository` fields in `package.json`.
-4. Change the name of your extension on `src/manifest.json`.
-5. Run `npm install` to install the dependencies.
-6. Run `npm start`
-7. Load your extension on Chrome following:
-   1. Access `chrome://extensions/`
-   2. Check `Developer mode`
-   3. Click on `Load unpacked extension`
-   4. Select the `build` folder.
-8. Happy hacking.
-
-## Structure
-
-All your extension's code must be placed in the `src` folder.
-
-The boilerplate is already prepared to have a popup, an options page, a background page, and a new tab page (which replaces the new tab page of your browser). But feel free to customize these.
-
-## TypeScript
-
-This boilerplate now supports TypeScript! The `Options` Page is implemented using TypeScript. Please refer to `src/pages/Options/` for example usages.
-
-## Webpack auto-reload and HRM
-
-To make your workflow much more efficient this boilerplate uses the [webpack server](https://webpack.github.io/docs/webpack-dev-server.html) to development (started with `npm start`) with auto reload feature that reloads the browser automatically every time that you save some file in your editor.
-
-You can run the dev mode on other port if you want. Just specify the env var `port` like this:
-
-```
-$ PORT=6002 npm run start
+```sh
+npm ci
+npm test
+npm run build
 ```
 
-## Content Scripts
+Load the generated `build` folder as an unpacked extension. `npm run build` also produces a ZIP in `zip/`. To generate the curated standalone beta package with privacy instructions and dependency license texts:
 
-Although this boilerplate uses the webpack dev server, it's also prepared to write all your bundles files on the disk at every code change, so you can point, on your extension manifest, to your bundles that you want to use as [content scripts](https://developer.chrome.com/extensions/content_scripts), but you need to exclude these entry points from hot reloading [(why?)](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate/issues/4#issuecomment-261788690). To do so you need to expose which entry points are content scripts on the `webpack.config.js` using the `chromeExtensionBoilerplate -> notHotReload` config. Look the example below.
-
-Let's say that you want use the `myContentScript` entry point as content script, so on your `webpack.config.js` you will configure the entry point and exclude it from hot reloading, like this:
-
-```js
-{
-  …
-  entry: {
-    myContentScript: "./src/js/myContentScript.js"
-  },
-  chromeExtensionBoilerplate: {
-    notHotReload: ["myContentScript"]
-  }
-  …
-}
+```sh
+python3 utils/package-release.py
 ```
 
-and on your `src/manifest.json`:
+The curated ZIP is written to `releases/`. End users do not need Node or Python; these are developer build tools only. Run `npm run icons` to export Chrome icon sizes from the editable [SVG logo](src/assets/img/logo.svg).
 
-```json
-{
-  "content_scripts": [
-    {
-      "matches": ["https://www.google.com/*"],
-      "js": ["myContentScript.bundle.js"]
-    }
-  ]
-}
-```
+## Privacy and licensing
 
-## Intelligent Code Completion
+Article text and generated speech stay on the device. Model, tokenizer, and voice files are fetched from Hugging Face; those downloads expose ordinary network metadata to the host. Some reading preferences use Chrome sync storage; theme and accent use local storage. See [Privacy](PRIVACY.md) and [Distribution](DISTRIBUTION.md) for details, including cache behavior and public-release review requirements.
 
-Thanks to [@hudidit](https://github.com/lxieyang/chrome-extension-boilerplate-react/issues/4)'s kind suggestions, this boilerplate supports chrome-specific intelligent code completion using [@types/chrome](https://www.npmjs.com/package/@types/chrome).
+Kokoro and its ONNX weights are published under Apache 2.0. The beta includes dependency license notices; embedded components such as eSpeak NG still need review before a public product release. This project retains the [MIT license](LICENSE) and attribution of the original extension boilerplate.
 
-## Packing
-
-After the development of your extension run the command
-
-```
-$ NODE_ENV=production npm run build
-```
-
-Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
-
-## Secrets
-
-If you are developing an extension that talks with some API you probably are using different keys for testing and production. Is a good practice you not commit your secret keys and expose to anyone that have access to the repository.
-
-To this task this boilerplate import the file `./secrets.<THE-NODE_ENV>.js` on your modules through the module named as `secrets`, so you can do things like this:
-
-_./secrets.development.js_
-
-```js
-export default { key: '123' };
-```
-
-_./src/popup.js_
-
-```js
-import secrets from 'secrets';
-ApiCall({ key: secrets.key });
-```
-
-:point_right: The files with name `secrets.*.js` already are ignored on the repository.
-
-## Resources:
-
-- [Webpack documentation](https://webpack.js.org/concepts/)
-- [Chrome Extension documentation](https://developer.chrome.com/extensions/getstarted)
-
----
-
-Michael Xieyang Liu | [Website](https://lxieyang.github.io)
+This is an unpacked beta, not a Chrome Web Store publication.

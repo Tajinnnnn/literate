@@ -1,3 +1,8 @@
+/* Give Chrome an intrinsic popup width; viewport units create an autosizing loop. */
+html { width: 300px; }
+html.detached-player { width: 100%; }
+body, #app-container { width: 100%; }
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

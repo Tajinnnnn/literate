@@ -7,9 +7,12 @@
     "build": "node utils/build.js",
     "start": "node utils/webserver.js",
     "lint": "eslint 'src/**/*.{js,jsx}'",
-    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
+    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "test": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "icons": "node utils/render-icons.cjs"
   },
   "dependencies": {
+    "kokoro-js": "^1.2.1",
     "pdfjs-dist": "^4.10.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

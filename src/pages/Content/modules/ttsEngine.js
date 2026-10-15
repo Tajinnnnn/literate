@@ -1,4 +1,4 @@
-import { wrapPageWords, wrapSelectionWords, unwrapWords } from './wordWrapper';
+import { wrapPageWords, wrapSelectionWords, unwrapWords, computeRewindIndex, computeForwardIndex } from './wordWrapper';
 import { HoverToolbar } from './hoverToolbar';
 
 const ACTIVE_CLASS = '__ttsxr_word_active';
@@ -57,7 +57,7 @@ function isUsOrUkEnglish(lang) {
   return normalized === 'en-us' || normalized === 'en-gb';
 }
 
-function getContrastTextColor(hex) {
+export function getContrastTextColor(hex) {
   const c = (hex || '').replace('#', '');
   if (c.length !== 6) return '#1a1a1a';
   const r = parseInt(c.substring(0, 2), 16);
@@ -71,6 +71,7 @@ export class TTSEngine {
   constructor() {
     this.words = [];
     this.spans = [];
+    this.boundaries = [];
     this.currentIndex = -1;
     this.currentSpan = null;
     this.indexBase = 0;
@@ -81,6 +82,14 @@ export class TTSEngine {
     this.followLock = true;
     this.utterance = null;
     this.active = false;
+    // Tracked explicitly rather than read live off window.speechSynthesis.paused:
+    // Chrome can leave that flag stuck true after a cancel()+speak() cycle (the
+    // cancel()/pause() interaction is a known Web Speech API rough edge), which
+    // both mislabels the pause/resume control AND - since onboundary below
+    // bails out while "paused" - silently freezes word highlighting while
+    // audio keeps playing. A locally-owned flag can't drift from what we
+    // actually told the engine to do.
+    this._paused = false;
 
     this.toolbar = new HoverToolbar(this);
 
@@ -112,10 +121,9 @@ export class TTSEngine {
   }
 
   getState() {
-    const synth = window.speechSynthesis;
     return {
       active: this.active,
-      isPaused: !!(synth && synth.paused),
+      isPaused: this.isPaused(),
       rate: this.rate,
       volume: this.volume,
       voiceURI: this.voiceURI,
@@ -123,6 +131,10 @@ export class TTSEngine {
       wordCount: this.words.length,
       currentIndex: this.currentIndex,
     };
+  }
+
+  isPaused() {
+    return this._paused;
   }
 
   start(mode) {
@@ -173,9 +185,11 @@ export class TTSEngine {
   _beginReading(result, startIndex = 0) {
     this.words = result.words;
     this.spans = result.spans;
+    this.boundaries = result.boundaries || [];
     this.currentIndex = -1;
     this.currentSpan = null;
     this.active = true;
+    this._paused = false;
     this.toolbar.show();
     this._speakFrom(startIndex);
   }
@@ -253,8 +267,10 @@ export class TTSEngine {
       if (e.name && e.name !== 'word') return;
       // Chrome can deliver a stray/late boundary event right as pause() takes
       // effect, or replay one after resume(); ignore those so the highlight
-      // doesn't jump away from the word actually being spoken.
-      if (window.speechSynthesis.paused) return;
+      // doesn't jump away from the word actually being spoken. Uses the
+      // tracked flag, not the live API, so a stuck browser-side paused flag
+      // can't also freeze highlighting while audio keeps going.
+      if (this._paused) return;
 
       let localIndex = 0;
       for (let i = offsets.length - 1; i >= 0; i--) {
@@ -286,6 +302,10 @@ export class TTSEngine {
 
     this.utterance = utterance;
     window.speechSynthesis.speak(utterance);
+    // Any new utterance - initial start, next chunk, or a cancel+respeak
+    // from rewind/fast-forward/rate change - must re-honor an existing
+    // pause request, since cancel() clears the browser's own paused state.
+    if (this._paused) window.speechSynthesis.pause();
   }
 
   _setCurrentWord(i) {
@@ -322,28 +342,54 @@ export class TTSEngine {
   }
 
   togglePause() {
-    const synth = window.speechSynthesis;
     if (!this.active) return;
-    if (synth.paused) {
+    const synth = window.speechSynthesis;
+    this._paused = !this._paused;
+    if (this._paused) {
+      if (synth.speaking) synth.pause();
+    } else if (synth.paused) {
       synth.resume();
-    } else if (synth.speaking) {
-      synth.pause();
     }
     this.toolbar.refresh();
   }
 
   // Web Speech utterances lock in rate/volume/voice at speak() time, so any
-  // change requires cancelling and re-speaking from the current word. This
-  // preserves whether playback was paused so tweaking a setting mid-pause
-  // doesn't unexpectedly resume speech (a source of the highlight seeming to
-  // jump while "paused").
+  // change requires cancelling and re-speaking from the current word. Pause
+  // state isn't handled here - _speakFrom re-honors this._paused for every
+  // new utterance, including this one.
   _restartFromCurrent() {
     if (!this.active || this.currentIndex < 0) return;
     const resumeIndex = this.currentIndex;
-    const wasPaused = !!(window.speechSynthesis && window.speechSynthesis.paused);
     window.speechSynthesis.cancel();
     this._speakFrom(resumeIndex);
-    if (wasPaused) window.speechSynthesis.pause();
+  }
+
+  // Jumps to a specific index: cancels current speech, immediately moves
+  // currentIndex/highlight there (so a rapid repeat press computes its next
+  // target from the just-requested position, not a stale one still waiting
+  // on an async boundary event that this same cancel() may have wiped out
+  // before it ever fired), then kicks off speech from there.
+  _jumpTo(target) {
+    window.speechSynthesis.cancel();
+    this._setCurrentWord(target);
+    this._speakFrom(target);
+    this.toolbar.refresh();
+  }
+
+  // Jumps to the previous paragraph's first word (or word 0, once already in
+  // the first paragraph).
+  rewind() {
+    if (!this.active) return;
+    this._jumpTo(computeRewindIndex(this.boundaries, this.currentIndex));
+  }
+
+  // Jumps to the next paragraph's first word; no-ops once already in the
+  // last paragraph rather than jumping past the end of the content.
+  fastForward() {
+    if (!this.active) return;
+    const target = computeForwardIndex(this.boundaries, this.currentIndex);
+    if (target === null) return;
+    this._jumpTo(target);
   }
 
   adjustRate(delta) {
@@ -404,10 +450,12 @@ export class TTSEngine {
 
     this.words = [];
     this.spans = [];
+    this.boundaries = [];
     this.currentIndex = -1;
     this.currentSpan = null;
     this.utterance = null;
     this.active = false;
+    this._paused = false;
     this.toolbar.hide();
   }
 }
