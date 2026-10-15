@@ -229,7 +229,7 @@ export default function Popup() {
         <label className="custom-accent">Custom color<input type="color" aria-label="Custom accent color" value={accent} onChange={e => changeAccent(e.target.value)} /></label>
       </section>
       <div className="settings-playback">{playbackControls}</div>
-      <label className="settings-row">Page appearance<button className="small-button" onClick={() => command(MSG.TOGGLE_DARK_MODE)}>{state?.darkMode ? 'Dark' : 'Light'}</button></label>
+      <label className="settings-row">Page appearance<button className="small-button" aria-label={`Page appearance: ${state?.darkMode ? 'Dark' : 'Light'}`} aria-pressed={!!state?.darkMode} onClick={() => command(MSG.TOGGLE_DARK_MODE)}>{state?.darkMode ? 'Dark' : 'Light'}</button></label>
       <label className="settings-row">Highlight color<input type="color" aria-label="Highlight color" value={state?.highlightColor || '#ffe58a'} onChange={e => command(MSG.SET_HIGHLIGHT_COLOR, { color: e.target.value })} /></label>
       <h2>Keyboard shortcuts</h2>
       <p className="page-subtitle">Optional. Leave a field empty to disable it.</p>

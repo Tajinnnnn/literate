@@ -7,6 +7,7 @@
    background before the per-element darkening pass (in darkMode.js) runs. */
 html.__ttsxr_dark_mode__,
 html.__ttsxr_dark_mode__ body {
+  color-scheme: dark !important;
   background-color: #080808 !important;
   color: #dcdcdc !important;
 }

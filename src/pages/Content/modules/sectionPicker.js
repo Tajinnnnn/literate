@@ -4,6 +4,7 @@ export function pickReadingSection(onPick, onCancel) {
   const children = [];
   const host = document.createElement('div');
   host.setAttribute('data-ttsxr-ignore', '');
+  host.setAttribute('data-ttsxr-theme-ignore', '');
   host.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;';
   const shadow = host.attachShadow({ mode: 'open' });
   shadow.innerHTML = `<style>

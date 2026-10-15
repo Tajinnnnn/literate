@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Literate",
   "description": "Browsing helpers: reads any webpage or selected text aloud with word-by-word highlighting, hover playback controls, and a one-click dark mode.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "background": {
     "service_worker": "background.bundle.js"
   },

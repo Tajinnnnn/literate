@@ -13,7 +13,7 @@ const LIGHT_TARGET_L = 88;
 
 let active = false;
 let observer = null;
-const touched = new Map(); // element -> { bg: original inline background, color: original inline color }
+const touched = new Map(); // Preserve original inline values AND cascade priorities.
 
 function relativeLuminance(r, g, b) {
   const linear = (c) => {
@@ -109,7 +109,7 @@ function lighten(rgb) {
 
 function shouldSkip(el) {
   return (
-    el.hasAttribute('data-ttsxr-ignore') ||
+    el.closest('[data-ttsxr-theme-ignore]') ||
     el.classList.contains('__ttsxr_word') ||
     el.tagName === 'SCRIPT' ||
     el.tagName === 'STYLE'
@@ -118,7 +118,10 @@ function shouldSkip(el) {
 
 function remember(el) {
   if (!touched.has(el)) {
-    touched.set(el, { bg: el.style.backgroundColor, color: el.style.color });
+    touched.set(el, {
+      bg: el.style.getPropertyValue('background-color'), bgPriority: el.style.getPropertyPriority('background-color'),
+      color: el.style.getPropertyValue('color'), colorPriority: el.style.getPropertyPriority('color'),
+    });
   }
 }
 
@@ -172,8 +175,10 @@ function applyToTree(root) {
 
 function revertAll() {
   touched.forEach((orig, el) => {
-    el.style.backgroundColor = orig.bg;
-    el.style.color = orig.color;
+    if (orig.bg) el.style.setProperty('background-color', orig.bg, orig.bgPriority);
+    else el.style.removeProperty('background-color');
+    if (orig.color) el.style.setProperty('color', orig.color, orig.colorPriority);
+    else el.style.removeProperty('color');
   });
   touched.clear();
 }
@@ -237,6 +242,11 @@ export function initDarkMode() {
   if (chrome.storage && chrome.storage.sync) {
     chrome.storage.sync.get(['ttsDarkMode'], (res) => {
       if (res.ttsDarkMode) enable();
+    });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== 'sync' || !changes.ttsDarkMode) return;
+      if (changes.ttsDarkMode.newValue) enable();
+      else disable();
     });
   }
 }

@@ -2,6 +2,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
 import { reflowPdfText } from '../../shared/pdfText.mjs';
 import { initReadingSurface } from '../../shared/readerBootstrap';
 import './pdfViewer.styles.css';
+import '../Content/content.styles.css';
 
 const root = document.getElementById('app-root');
 

@@ -10,6 +10,7 @@ export class HoverToolbar {
 
     this.host = document.createElement('div');
     this.host.setAttribute('data-ttsxr-ignore', '');
+    this.host.setAttribute('data-ttsxr-theme-ignore', '');
     this.host.style.cssText = 'position:fixed;z-index:2147483647;top:0;left:0;display:none;';
     (document.body || document.documentElement).appendChild(this.host);
 
