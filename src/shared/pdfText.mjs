@@ -37,13 +37,20 @@ export function reflowPdfText(items) {
   for (const item of items) {
     if (typeof item.str !== 'string') continue;
     const clean = sanitizeExtractedText(item.str).replace(/\s+/g, ' ');
-    const word = clean.trim();
+    let word = clean.trim();
     if (!word) {
       explicitSpace ||= /\s/.test(clean);
       lineEnd ||= !!item.hasEOL;
       continue;
     }
     const position = geometry(item);
+    // Some PDFs encode decorative tracking as literal spaces INSIDE a
+    // glyph run. Compact runs of four or more capitals are single words;
+    // keep separate runs, short initials and widely spaced letters intact.
+    if (position && /^\p{Lu}(?: \p{Lu}){3,}$/u.test(word)) {
+      const letters = word.replace(/ /g, '');
+      if (position.width / letters.length <= position.height * 0.85) word = letters;
+    }
     if (previous) {
       const before = previous.position;
       let separator = ' ';

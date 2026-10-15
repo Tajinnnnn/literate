@@ -24,3 +24,12 @@ test('normalizes ligatures and invisible controls without merging separate words
  assert.equal(reflowPdfText([{str:'one'},{str:'two'}]),'one two');
  assert.equal(reflowPdfText([]),'');
 });
+
+test('repairs compact letter-spaced heading runs but preserves word boundaries and abbreviations',()=>{
+ const tracked=(str,x,width)=>item(str,x,100,width,{height:8.2,transform:[8.2,0,0,8.2,x,100]});
+ assert.equal(reflowPdfText([tracked('E T H O S',0,29.84),item(' ',29.84,100,10),tracked('O R D E R',37.38,29.84),item(' ',67.22,100,10),tracked('F L O W',74.76,23.61)]),'ETHOS ORDER FLOW');
+ assert.equal(reflowPdfText([tracked('E D U C A T I O N',0,54.76)]),'EDUCATION');
+ assert.equal(reflowPdfText([item('U S A',0,100,25)]),'U S A');
+ assert.equal(reflowPdfText([item('A B C D',0,100,40)]),'A B C D');
+ assert.equal(reflowPdfText([item('I am a reader',0)]),'I am a reader');
+});
