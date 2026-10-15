@@ -183,7 +183,7 @@ export default function Popup() {
     setEditingRate(false);
   }
   function commitHotkey(key, value) {
-    if (!/^\S$/.test(value)) return;
+    if (value !== '' && !/^\S$/.test(value)) return;
     const next = { ...hotkeys, [key]: value.toLowerCase() };
     setHotkeys(next); command(MSG.SET_HOTKEYS, { hotkeys: next });
   }
