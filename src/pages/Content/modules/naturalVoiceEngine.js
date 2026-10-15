@@ -58,6 +58,8 @@ export class NaturalVoiceEngine {
     this.currentChunk = null; // { indexBase, chunkEnd, thresholds }
     this._chunkStartContextTime = 0;
     this._pendingNextChunk = null;
+    this._bufferedChunks = new Map();
+    this._prefetchTask = null;
     this._rafHandle = null;
     this._generation = 0;
     // Persistent, explicitly-owned pause state - checked by _playChunk for
@@ -328,6 +330,7 @@ export class NaturalVoiceEngine {
   }
 
   _playChunk({ indexBase, chunkEnd, audio, samplingRate }) {
+    this._bufferedChunks?.delete(indexBase);
     const media = new Audio();
     const url = URL.createObjectURL(voiceAudioBlob(audio, samplingRate));
     media.src = url;
@@ -352,7 +355,8 @@ export class NaturalVoiceEngine {
       this.currentChunk = null;
       if (this._rafHandle) cancelAnimationFrame(this._rafHandle);
       if (chunkEnd < this.words.length) {
-        const pending = this._pendingNextChunk;
+        const pending = this._bufferedChunks?.get(chunkEnd);
+        this._bufferedChunks?.delete(chunkEnd);
         this._pendingNextChunk = null;
         if (pending && pending.indexBase === chunkEnd) {
           this._playChunk(pending);
@@ -379,15 +383,28 @@ export class NaturalVoiceEngine {
 
   _prefetchNextChunk(afterIndex) {
     if (afterIndex >= this.words.length) return;
-    const chunkEnd = this._findChunkEnd(afterIndex);
     const generation = this._generation;
-    this._synthesizeChunk(afterIndex, chunkEnd)
-      .then((result) => {
-        if (generation === this._generation) this._pendingNextChunk = result;
-      })
-      .catch(() => {
-        // Leave it null; onended will fall back to synthesizing on demand.
-      });
+    if (this._prefetchTask?.generation === generation) return this._prefetchTask.promise;
+    this._bufferedChunks ||= new Map();
+    const task = { generation };
+    this._prefetchTask = task;
+    task.promise = (async () => {
+      let index = afterIndex;
+      while (this.active && generation === this._generation && index < this.words.length) {
+        const ready = this._bufferedChunks.get(index);
+        if (ready) { index = ready.chunkEnd; continue; }
+        if (this._bufferedChunks.size >= 3) break;
+        const result = await this._synthesizeChunk(index, this._findChunkEnd(index));
+        if (generation !== this._generation || !this.active) return;
+        this._bufferedChunks.set(index, result);
+        index = result.chunkEnd;
+      }
+    })().catch(() => {
+      // Playback retries the next chunk on demand if prefetch fails.
+    }).finally(() => {
+      if (this._prefetchTask === task) this._prefetchTask = null;
+    });
+    return task.promise;
   }
 
   _startHighlightLoop() {
@@ -479,6 +496,7 @@ export class NaturalVoiceEngine {
     this.audioElement = null;
     if (this._rafHandle) cancelAnimationFrame(this._rafHandle);
     this._pendingNextChunk = null;
+    this._bufferedChunks?.clear();
     this.currentChunk = null; // The old audio clock must not override the requested position.
     this._playFrom(index);
   }
@@ -574,6 +592,7 @@ export class NaturalVoiceEngine {
       this._rafHandle = null;
     }
     this._pendingNextChunk = null;
+    this._bufferedChunks?.clear();
     this.currentChunk = null;
 
     if (this.currentSpan) {

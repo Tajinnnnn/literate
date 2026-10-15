@@ -1,4 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
+import { reflowPdfText } from '../../shared/pdfText.mjs';
 import { initReadingSurface } from '../../shared/readerBootstrap';
 import './pdfViewer.styles.css';
 
@@ -44,53 +45,10 @@ function fileNameFromUrl(url) {
   }
 }
 
-// PDFs with subsetted/custom-encoded fonts routinely decode to characters
-// that never render visibly but still sit in the extracted string -- format
-// controls, zero-width/bidi marks, a stray BOM, or private-use-area
-// codepoints standing in for a glyph with no proper Unicode mapping. Native
-// speechSynthesis engines can choke on these mid-utterance and silently skip
-// ahead over a stretch of text rather than erroring, which reads as "it just
-// skipped a section" with no console error to show for it. Stripping them
-// (and normalizing the modifier-letter apostrophe PDFs often emit in place
-// of a plain apostrophe -- codepoint 0x2bc) at the extraction point keeps
-// the fix scoped to PDF input rather than papering over it in the shared
-// reading engine.
-//
-// Built from numeric code points rather than literal escapes/characters
-// typed into source, so the ranges stay unambiguous no matter what an
-// editor or tool along the way does with invisible characters.
-function codePointRange(start, end) {
-  const chars = [];
-  for (let cp = start; cp <= end; cp++) chars.push(String.fromCharCode(cp));
-  return chars.join('');
-}
-
-const UNSAFE_CHAR_SET =
-  codePointRange(0x00, 0x08) +
-  codePointRange(0x0b, 0x0c) +
-  codePointRange(0x0e, 0x1f) +
-  codePointRange(0x7f, 0x9f) +
-  String.fromCharCode(0xad) +
-  codePointRange(0x200b, 0x200f) +
-  codePointRange(0x202a, 0x202e) +
-  codePointRange(0x2060, 0x206f) +
-  String.fromCharCode(0xfeff);
-// eslint-disable-next-line no-control-regex
-const UNSAFE_CHARS = new RegExp('[' + UNSAFE_CHAR_SET + ']', 'g');
-const MODIFIER_APOSTROPHE = new RegExp(String.fromCharCode(0x2bc), 'g');
-
-function sanitizeExtractedText(str) {
-  return str.normalize('NFKC').replace(MODIFIER_APOSTROPHE, "'").replace(UNSAFE_CHARS, '');
-}
-
 async function extractPageText(pdf, pageNumber) {
   const page = await pdf.getPage(pageNumber);
   const textContent = await page.getTextContent();
-  const raw = textContent.items
-    .map((item) => item.str)
-    .filter(Boolean)
-    .join(' ');
-  return sanitizeExtractedText(raw);
+  return reflowPdfText(textContent.items);
 }
 
 async function loadPdf(fileUrl) {
@@ -122,11 +80,12 @@ async function loadPdf(fileUrl) {
     label.setAttribute('data-ttsxr-ignore', '');
     label.textContent = 'Page ' + pageNumber;
 
-    const p = document.createElement('p');
-    p.textContent = text || '(no extractable text on this page)';
-
     pageEl.appendChild(label);
-    pageEl.appendChild(p);
+    for (const paragraph of (text || '(no extractable text on this page)').split(/\n{2,}/)) {
+      const p = document.createElement('p');
+      p.textContent = paragraph;
+      pageEl.appendChild(p);
+    }
     main.appendChild(pageEl);
   }
 

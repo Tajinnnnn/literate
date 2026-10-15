@@ -121,11 +121,12 @@ export default function Popup() {
       setUnavailable(!next);
       if (!next) return;
       setState(next);
-      if (transcriptSession.current !== next.sessionId) {
+      const transcriptKey = `${next.naturalVoiceEnabled}:${next.sessionId}`;
+      if (transcriptSession.current !== transcriptKey) {
         const request = ++transcriptRequest.current;
         const transcript = await sendToSource({ type: MSG.GET_TRANSCRIPT });
         if (request === transcriptRequest.current && transcript?.sessionId === next.sessionId) {
-          transcriptSession.current = transcript.sessionId;
+          transcriptSession.current = transcriptKey;
           setLines(transcript.lines || []);
         }
       }
@@ -189,16 +190,19 @@ export default function Popup() {
   }
 
   const voice = state?.naturalVoice || { status: 'idle', voices: [], voiceId: 'af_heart' };
-  const voiceName = voice.voices.find(v => v.id === voice.voiceId)?.name || 'Heart';
+  const naturalMode = state?.naturalVoiceEnabled !== false;
+  const deviceVoices = state?.deviceVoices || [];
+  const deviceVoice = deviceVoices.find(v => v.voiceURI === state?.voiceURI) || deviceVoices.find(v => v.default) || deviceVoices[0];
+  const voiceName = naturalMode ? (voice.voices.find(v => v.id === voice.voiceId)?.name || 'Heart') : (deviceVoice?.name || 'Device voice');
   const active = !!state?.active;
   const paused = !!state?.isPaused;
   const preparing = active && state?.isSynthesizing;
   const wordCount = state?.wordCount || 0;
   const progress = wordCount ? Math.min(100, Math.max(0, ((state.currentIndex + 1) / wordCount) * 100)) : 0;
-  const status = unavailable ? 'Page unavailable' : voice.status === 'loading' ? 'Getting your voice ready' : voice.status === 'error' ? 'Voice needs attention' : preparing ? 'Preparing narration' : state?.completed ? 'Reading complete' : paused ? 'Paused' : active ? 'Now reading' : 'Ready to listen';
+  const status = unavailable ? 'Page unavailable' : naturalMode && voice.status === 'loading' ? 'Getting your voice ready' : naturalMode && voice.status === 'error' ? 'Voice needs attention' : preparing ? 'Preparing narration' : state?.completed ? 'Reading complete' : paused ? 'Paused' : active ? 'Now reading' : 'Ready to listen';
 
   const playbackControls = <>
-        <div className="player-controls"><label className="voice-control"><span className="sr-only">Natural voice</span><select aria-label="Natural voice" value={voice.voiceId || 'af_heart'} disabled={!voice.voices.length || unavailable} onChange={e => command(MSG.SET_NATURAL_VOICE, { voiceId: e.target.value })}>{voice.voices.length ? voice.voices.map(v => <option key={v.id} value={v.id}>{v.name} · {v.lang || v.language}</option>) : <option value="af_heart">Heart</option>}</select></label>
+        <div className="player-controls"><label className="voice-control"><span className="sr-only">{naturalMode ? 'Natural voice' : 'Device voice'}</span>{naturalMode ? <select aria-label="Natural voice" value={voice.voiceId || 'af_heart'} disabled={!voice.voices.length || unavailable} onChange={e => command(MSG.SET_NATURAL_VOICE, { voiceId: e.target.value })}>{voice.voices.length ? voice.voices.map(v => <option key={v.id} value={v.id}>{v.name} · {v.lang || v.language}</option>) : <option value="af_heart">Heart</option>}</select> : <select aria-label="Device voice" value={deviceVoice?.voiceURI || ''} disabled={!deviceVoices.length || unavailable} onChange={e => command(MSG.SET_VOICE, { voiceURI: e.target.value })}>{deviceVoices.length ? deviceVoices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name} · {v.lang}</option>) : <option value="">No local English voices</option>}</select>}</label>
           <div className="rate-control"><button aria-label="Read slower" disabled={unavailable} onClick={() => setRate((state?.rate || 1) - .1)}>−</button><label><input aria-label="Playback speed" inputMode="decimal" value={rateText} onFocus={() => setEditingRate(true)} onChange={e => setRateText(e.target.value)} onBlur={commitRate} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /><span>×</span></label><button aria-label="Read faster" disabled={unavailable} onClick={() => setRate((state?.rate || 1) + .1)}>+</button></div>
         </div>
         <label className="player-volume"><Icon name="volume" size={16} /><input aria-label="Volume" type="range" min="0" max="1" step=".05" value={state?.volume ?? 1} disabled={unavailable} onChange={e => command(MSG.SET_VOLUME, { volume: Number(e.target.value) })} /></label>
@@ -217,6 +221,8 @@ export default function Popup() {
 
     {showSettings ? <section className="player-settings">
       <p className="section-kicker">Make it yours</p><h1>Reading preferences</h1>
+      <label className="engine-control">Voice engine<select aria-label="Voice engine" value={naturalMode ? 'natural' : 'device'} disabled={unavailable} onChange={e => command(MSG.SET_NATURAL_VOICE_ENABLED, { enabled: e.target.value === 'natural' })}><option value="natural">Natural — Kokoro</option><option value="device">Instant — device voices</option></select></label>
+      <p className="voice-help">{naturalMode ? 'Natural narration, generated on your device.' : 'Starts without a model download. Uses installed device voices.'}</p>
       <section className="accent-settings" aria-label="Accent color">
         <h2>Accent color</h2>
         <div className="accent-presets">{ACCENT_COLORS.map(({name, color}) => <button key={color} type="button" className="accent-swatch" style={{'--swatch': color}} aria-label={`${name} accent`} aria-pressed={accent === color} title={name} onClick={() => changeAccent(color)} />)}</div>
@@ -239,14 +245,15 @@ export default function Popup() {
         <div className="reading-progress"><progress aria-label="Reading progress" max="100" value={progress} /><div className="progress-labels"><span>{wordCount ? `${Math.round(progress)}% read` : 'Your own pace'}</span><span>{wordCount ? `${wordCount} words` : 'On-device voice'}</span></div></div>
         <div className="player-transport">
           <button className="icon-button" aria-label="Previous paragraph" title="Previous paragraph" disabled={!active} onClick={() => command(MSG.REWIND)}><Icon name="previous" size={20} /></button>
-          <button className="play-button" aria-label={active ? (paused ? 'Resume reading' : 'Pause reading') : 'Read page'} title={active ? (paused ? 'Resume reading' : 'Pause reading') : 'Read page'} disabled={unavailable || voice.status === 'error'} onClick={() => command(active ? MSG.TOGGLE_PAUSE : MSG.READ_PAGE)}><Icon name={active && !paused ? 'pause' : 'play'} size={25} /></button>
+          <button className="play-button" aria-label={active ? (paused ? 'Resume reading' : 'Pause reading') : 'Read page'} title={active ? (paused ? 'Resume reading' : 'Pause reading') : 'Read page'} disabled={unavailable || (naturalMode ? voice.status === 'error' : !deviceVoices.length)} onClick={() => command(active ? MSG.TOGGLE_PAUSE : MSG.READ_PAGE)}><Icon name={active && !paused ? 'pause' : 'play'} size={25} /></button>
           <button className="icon-button" aria-label="Next paragraph" title="Next paragraph" disabled={!active} onClick={() => command(MSG.FAST_FORWARD)}><Icon name="next" size={20} /></button>
           <button className="stop-button icon-button" aria-label="Stop reading" title="Stop reading" disabled={!active} onClick={() => command(MSG.STOP)}><Icon name="stop" size={15} /></button>
         </div>
 
         <div className="reading-scope"><button type="button" disabled={unavailable} onClick={chooseSection}>Choose section</button>{state?.readingScope === 'section' && <><span>Section selected</span><button type="button" onClick={() => command(MSG.RESET_SECTION)}>Read article</button></>}</div>
-        {voice.status === 'loading' && <p className="voice-help">{typeof voice.progress === 'number' ? `${voice.progress}% · ` : ''}Warming up your shared voice.</p>}
-        {voice.status === 'error' && <div className="player-notice error" role="alert">{voice.error}<button className="small-button" onClick={() => command(MSG.SET_NATURAL_VOICE_ENABLED, { enabled: true })}>Retry voice download</button></div>}
+        {!naturalMode && !deviceVoices.length && !unavailable && <p className="player-notice">No local English voice is available. Install one in your device’s speech settings, or choose Natural in Settings.</p>}
+        {naturalMode && voice.status === 'loading' && <p className="voice-help">{typeof voice.progress === 'number' ? `${voice.progress}% · ` : ''}Warming up your shared voice.</p>}
+        {naturalMode && voice.status === 'error' && <div className="player-notice error" role="alert">{voice.error}<button className="small-button" onClick={() => command(MSG.SET_NATURAL_VOICE_ENABLED, { enabled: true })}>Retry voice download</button></div>}
         {actionError && <p className="player-notice error" role="alert">{actionError}</p>}
       </main>
 
@@ -258,6 +265,6 @@ export default function Popup() {
         </div>}
       </section>}
     </>}
-    {SOURCE.detached && <footer className="player-footer"><Icon name="lock" size={11} /><span>Private, on-device listening</span><span className="footer-dot" />Kokoro voices</footer>}
+    {SOURCE.detached && <footer className="player-footer"><Icon name="lock" size={11} /><span>Private, on-device listening</span><span className="footer-dot" />{naturalMode ? 'Kokoro voices' : 'Device voices'}</footer>}
   </div>;
 }

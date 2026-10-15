@@ -62,6 +62,10 @@ body {
   white-space: pre-wrap;
 }
 
+.pdfxr-page p + p {
+  margin-top: 0.85em;
+}
+
 .pdfxr-page-number {
   display: block;
   font-size: 12px;

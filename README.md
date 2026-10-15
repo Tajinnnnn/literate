@@ -2,16 +2,16 @@
 
 # Literate
 
-A minimal Chrome extension that turns articles, selected text, and local PDFs into natural speech. Speech runs locally with Kokoro—no VoiceStudio, account, API key, or speech server required.
+A minimal Chrome extension that reads articles, selected text, and local PDFs aloud. Choose natural Kokoro narration or instant installed device voices. Both run on your device—no VoiceStudio, account, API key, or speech server required.
 
 ## Install the beta
 
 1. Download the ZIP from [Releases](https://github.com/Tajinnnnn/literate/releases).
 2. Extract it into a permanent folder.
 3. Open Chrome's Extensions page, enable **Developer mode**, choose **Load unpacked**, and select the extracted folder.
-4. Open an article and click Literate. The first use downloads and warms the voice model.
+4. Open an article and click Literate. In Settings, choose **Instant — device voices** for speech without a model download, or **Natural — Kokoro** for generated narration.
 
-Chrome 116 or newer is required. A compatible GPU gives the best performance; a CPU/WASM fallback is included. The GPU model download is approximately 315 MB and is cached separately from the extension. The shared worker keeps one loaded model across pages until Chrome or the extension restarts.
+Chrome 116 or newer is required. Kokoro downloads its model on first playback; a compatible GPU gives the best performance and a CPU/WASM fallback is included. The GPU model download is approximately 315 MB and is cached separately from the extension. The shared worker keeps one loaded model across pages until Chrome or the extension restarts. Device mode uses installed local English voices, filters novelty and network-backed voices, and remembers your engine choice across pages.
 
 ## Reading
 
@@ -22,6 +22,7 @@ Chrome 116 or newer is required. A compatible GPU gives the best performance; a 
 - Use **Keep on top** in the mini-player to open Chrome's floating Picture-in-Picture window.
 - Change speed during playback without regenerating the voice. Settings also offers voices, volume, optional shortcuts, and page highlighting. Keyboard shortcuts start empty; assign your own keys in Settings.
 - Choose light or dark mode and an accent color. Periwinkle is the default.
+- The PDF reader joins positioned letters and font fragments into words while preserving real spaces and paragraph breaks. Image-only PDFs still need OCR before they can be read.
 
 Automatic article detection is best effort; Choose section is available when a site's layout needs a more precise reading area. Local PDFs require enabling **Allow access to file URLs** for Literate in Chrome's extension settings.
 

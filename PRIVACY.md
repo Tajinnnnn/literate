@@ -1,6 +1,6 @@
 # Literate privacy
 
-Literate extracts text from the page or selection you ask it to read. Speech generation runs locally in a worker owned by the extension. Page text is not sent to a speech API or VoiceStudio.
+Literate extracts text from the page or selection you ask it to read. Natural speech generation runs locally in a worker owned by the extension. Instant mode uses installed local device voices through the browser's speech API; network-backed voices are excluded. Page text is not sent to a speech API or VoiceStudio.
 
 Hugging Face hosts model, tokenizer and voice files downloaded by the runtime. Those file requests expose ordinary network metadata, such as an IP address, to the host. They do not contain the article text. Downloaded assets are cached by Chrome.
 

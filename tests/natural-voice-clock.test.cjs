@@ -93,3 +93,22 @@ test('CPU continuation stays short so it can be prepared during playback',()=>{
  const engine=engineState();engine.executionBackend='wasm';engine.words='First sentence. Second sentence. Third sentence. Fourth sentence.'.split(' ');
  assert.equal(engine._findChunkEnd(2),4);
 });
+
+test('prefetch keeps up to three short continuations ready while playback runs',async()=>{
+ const engine=engineState();Object.assign(engine,{words:'One sentence. Two sentences. Three sentences. Four sentences. Five sentences.'.split(' '),executionBackend:'wasm',_generation:1});
+ const requests=[];
+ engine._synthesizeChunk=async(indexBase,chunkEnd)=>{requests.push(indexBase);return {indexBase,chunkEnd,audio:new Float32Array(24000),samplingRate:24000};};
+ await engine._prefetchNextChunk(2);
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.deepEqual(requests,[2,4,6]);
+ assert.equal(engine._bufferedChunks.size,3);
+});
+
+test('seeking discards audio that completes from the old lookahead queue',async()=>{
+ const engine=engineState();Object.assign(engine,{words:['One.','Two.','Three.'],executionBackend:'wasm',_generation:1});
+ let finish;engine._synthesizeChunk=()=>new Promise(resolve=>{finish=resolve;});
+ const pending=engine._prefetchNextChunk(1);
+ engine._playFrom=()=>{};engine._restartFrom(0);
+ finish({indexBase:1,chunkEnd:2});await pending;
+ assert.equal(engine._bufferedChunks.size,0);
+});

@@ -15,12 +15,16 @@ export function initReadingSurface() {
   const naturalEngine = new NaturalVoiceEngine();
   initDarkMode();
 
-  // Natural Kokoro voices are the default. Old System Voice preferences
-  // do not override the user's choice to remove robotic voices.
+  // Respect device mode before answering the popup, so opening it never
+  // starts a model download when the user chose instant native speech.
   let naturalVoiceEnabled = true;
-  if (chrome.storage && chrome.storage.sync) {
-    chrome.storage.sync.set({ ttsNaturalVoiceEnabled: true });
-  }
+  const preferencesReady = new Promise(resolve => {
+    if (!chrome.storage?.sync) { resolve(); return; }
+    chrome.storage.sync.get(['ttsNaturalVoiceEnabled'], saved => {
+      naturalVoiceEnabled = saved.ttsNaturalVoiceEnabled !== false;
+      resolve();
+    });
+  });
 
   function activeEngine() {
     return naturalVoiceEnabled ? naturalEngine : systemEngine;
@@ -34,6 +38,13 @@ export function initReadingSurface() {
     // Other tabs (or this one, via the popup) can change hotkeys at any time;
     // pick the update up immediately rather than only at page load.
     chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === 'sync' && changes.ttsNaturalVoiceEnabled) {
+        const enabled = changes.ttsNaturalVoiceEnabled.newValue !== false;
+        if (enabled !== naturalVoiceEnabled) {
+          activeEngine().stop();
+          naturalVoiceEnabled = enabled;
+        }
+      }
       if (area === 'sync' && changes.ttsHotkeys) {
         hotkeys = { ...DEFAULT_HOTKEYS, ...(changes.ttsHotkeys.newValue || {}) };
       }
@@ -85,6 +96,7 @@ export function initReadingSurface() {
       darkMode: isDarkModeActive(),
       hotkeys,
       naturalVoiceEnabled,
+      deviceVoices: systemEngine.getVoices(),
       naturalVoice: naturalEngine.getNaturalVoiceMeta(),
     };
   }
@@ -127,20 +139,18 @@ export function initReadingSurface() {
       return false;
     }
     (async () => {
+      await preferencesReady;
       switch (message.type) {
         case MSG.GET_STATE:
-          // Load only when the popup is opened or reading starts, not for
-          // every page where the content script is installed.
-          if (naturalVoiceEnabled && naturalEngine.modelStatus === 'idle') {
-            naturalEngine.ensureModelLoaded().catch(() => {});
-          }
+          // Merely inspecting settings must not trigger a model download.
+          // Natural speech loads on Play or an explicit engine selection.
           sendResponse(fullState());
           break;
         case MSG.SEEK_WORD:
-          sendResponse({ ...(await naturalEngine.seekToWord(message.index, message.sessionId)), state: fullState() });
+          sendResponse({ ...(await activeEngine().seekToWord(message.index, message.sessionId)), state: fullState() });
           break;
         case MSG.GET_TRANSCRIPT:
-          sendResponse(naturalEngine.getTranscript());
+          sendResponse(activeEngine().getTranscript());
           break;
         case MSG.GET_VOICES: {
           // Always the OS voice list — a separate, always-visible picker
@@ -155,20 +165,21 @@ export function initReadingSurface() {
         }
         case MSG.PICK_SECTION: {
           cancelSectionPicker?.();
-          const wasPlaying = naturalEngine.active && !naturalEngine.isPaused();
-          if (wasPlaying) naturalEngine.togglePause();
+          const engine = activeEngine();
+          const wasPlaying = engine.active && !engine.isPaused();
+          if (wasPlaying) engine.togglePause();
           cancelSectionPicker = pickReadingSection(element => {
-            cancelSectionPicker = null; naturalEngine.startSection(element);
+            cancelSectionPicker = null; engine.startSection(element);
           }, () => {
             cancelSectionPicker = null;
-            if (wasPlaying && naturalEngine.active && naturalEngine.isPaused()) naturalEngine.togglePause();
+            if (wasPlaying && engine.active && engine.isPaused()) engine.togglePause();
           });
           sendResponse({ ok: true });
           break;
         }
         case MSG.RESET_SECTION:
-          naturalEngine.readingRoot = null;
-          sendResponse({ ...(await naturalEngine.start('page')), state: fullState() });
+          activeEngine().readingRoot = null;
+          sendResponse({ ...(await activeEngine().start('page')), state: fullState() });
           break;
         case MSG.READ_PAGE:
           sendResponse({ ...(await activeEngine().start('page')), state: fullState() });

@@ -1,5 +1,6 @@
-import { wrapPageWords, wrapSelectionWords, unwrapWords, computeRewindIndex, computeForwardIndex } from './wordWrapper';
+import { wrapPageWords, wrapSelectionWords, wrapElementWords, unwrapWords, computeRewindIndex, computeForwardIndex } from './wordWrapper';
 import { HoverToolbar } from './hoverToolbar';
+import { buildTranscriptLines } from '../../../shared/readingTranscript.mjs';
 
 const ACTIVE_CLASS = '__ttsxr_word_active';
 const MIN_RATE = 0.1;
@@ -70,6 +71,8 @@ export function getContrastTextColor(hex) {
 export class TTSEngine {
   constructor() {
     this.words = [];
+    this.transcript = { sessionId: 0, lines: [], wordCount: 0 };
+    this.completed = false;
     this.spans = [];
     this.boundaries = [];
     this.currentIndex = -1;
@@ -110,7 +113,7 @@ export class TTSEngine {
 
   getVoices() {
     return cachedVoices
-      .filter((v) => isUsOrUkEnglish(v.lang) && !isNoveltyVoice(v.name))
+      .filter((v) => v.localService && isUsOrUkEnglish(v.lang) && !isNoveltyVoice(v.name))
       .map((v) => ({
         name: v.name,
         voiceURI: v.voiceURI,
@@ -123,13 +126,16 @@ export class TTSEngine {
   getState() {
     return {
       active: this.active,
+      readingScope: this.readingRoot?.isConnected ? 'section' : 'article',
+      sessionId: this.transcript.sessionId,
+      completed: this.completed,
       isPaused: this.isPaused(),
       rate: this.rate,
       volume: this.volume,
       voiceURI: this.voiceURI,
       highlightColor: this.highlightColor,
-      wordCount: this.words.length,
-      currentIndex: this.currentIndex,
+      wordCount: this.transcript.wordCount,
+      currentIndex: this.completed ? this.transcript.wordCount - 1 : this.currentIndex,
     };
   }
 
@@ -137,9 +143,28 @@ export class TTSEngine {
     return this._paused;
   }
 
+  getTranscript() { return this.transcript; }
+
+  startSection(element) {
+    this.readingRoot = element;
+    return this.start('page');
+  }
+
+  seekToWord(index, sessionId) {
+    if (sessionId !== this.transcript.sessionId || !Number.isInteger(index) || index < 0 || index >= this.transcript.wordCount) return { ok: false };
+    if (!this.active) {
+      if (!this._sessionWords?.length) return { ok: false };
+      this._beginReading({words: [...this._sessionWords], spans: [], boundaries: [...this._sessionBoundaries]}, index);
+    } else {
+      this._paused = false;
+      this._jumpTo(index);
+    }
+    return { ok: true };
+  }
+
   start(mode) {
     this.stop();
-    const result = mode === 'selection' ? wrapSelectionWords() : wrapPageWords();
+    const result = mode === 'selection' ? wrapSelectionWords() : (this.readingRoot?.isConnected ? wrapElementWords(this.readingRoot) : wrapPageWords());
     if (!result || result.words.length === 0) return { ok: false, reason: 'no-text' };
     this._beginReading(result);
     return { ok: true };
@@ -186,6 +211,10 @@ export class TTSEngine {
     this.words = result.words;
     this.spans = result.spans;
     this.boundaries = result.boundaries || [];
+    this._sessionWords = [...this.words];
+    this._sessionBoundaries = [...this.boundaries];
+    this.transcript = { sessionId: this.transcript.sessionId + 1, lines: buildTranscriptLines(this.words, this.boundaries), wordCount: this.words.length };
+    this.completed = false;
     this.currentIndex = -1;
     this.currentSpan = null;
     this.active = true;
@@ -195,8 +224,8 @@ export class TTSEngine {
   }
 
   _resolveVoice() {
-    if (!this.voiceURI) return null;
-    return cachedVoices.find((v) => v.voiceURI === this.voiceURI) || null;
+    const local = cachedVoices.filter(v => v.localService && isUsOrUkEnglish(v.lang) && !isNoveltyVoice(v.name));
+    return local.find(v => v.voiceURI === this.voiceURI) || local.find(v => v.default) || local[0] || null;
   }
 
   // Chrome can leave speechSynthesis.speaking/pending true for a beat after
@@ -235,7 +264,7 @@ export class TTSEngine {
 
   _speakFrom(indexBase) {
     if (indexBase >= this.words.length) {
-      this.stop();
+      this.stop({ completed: true });
       return;
     }
     this.indexBase = indexBase;
@@ -254,14 +283,11 @@ export class TTSEngine {
     utterance.rate = this.rate;
     utterance.volume = this.volume;
     const voice = this._resolveVoice();
-    if (voice) utterance.voice = voice;
+    // Never let the browser silently substitute a network-backed default.
+    if (!voice) { this.stop(); return; }
+    utterance.voice = voice;
 
-    // TEMP DIAGNOSTIC (see PDF-skip investigation): log exactly what text
-    // each utterance covers, so a skip can be pinned to "this whole chunk
-    // never played" vs. "the engine jumped forward mid-utterance".
-    utterance.onstart = () => {
-      console.log('[literate] chunk start', { indexBase, chunkEnd, length: text.length, text });
-    };
+    utterance.onstart = () => this._setCurrentWord(indexBase);
 
     utterance.onboundary = (e) => {
       if (e.name && e.name !== 'word') return;
@@ -291,7 +317,7 @@ export class TTSEngine {
       if (chunkEnd < this.words.length) {
         this._scheduleNextChunk(chunkEnd, utterance);
       } else {
-        this.stop();
+        this.stop({ completed: true });
       }
     };
     utterance.onerror = (e) => {
@@ -433,7 +459,8 @@ export class TTSEngine {
     }
   }
 
-  stop() {
+  stop({ completed = false } = {}) {
+    this.completed = completed;
     if (this.utterance) {
       this.utterance.onend = null;
       this.utterance.onerror = null;

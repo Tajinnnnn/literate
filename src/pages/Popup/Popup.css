@@ -63,6 +63,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .stop-button { position: absolute; right: 0; width: 24px; height: 24px; }
 .player-controls { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
 .voice-control { min-width: 0; }
+.engine-control { display: grid; gap: 7px; margin: 16px 0 8px; font-size: 11px; color: var(--muted); }
+.engine-control select { width: 100%; padding: 9px; font: inherit; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text); }
 .voice-control select { width: 151px; max-width: 100%; padding: 7px 24px 7px 9px; font-size: 11px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text); text-overflow: ellipsis; }
 .rate-control { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .rate-control button { width: 24px; height: 28px; padding: 0; background: transparent; border: 0; color: var(--dim); font-size: 18px; }
