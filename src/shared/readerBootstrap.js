@@ -52,7 +52,7 @@ export function initReadingSurface() {
     true
   );
 
-  // Tracked for the "I" keyboard shortcut, which has no click position of its
+  // Tracked for the optional "Read from here" shortcut, which has no click position of its
   // own to fall back on — it uses whatever the mouse is currently over.
   let lastMouseX = 0;
   let lastMouseY = 0;

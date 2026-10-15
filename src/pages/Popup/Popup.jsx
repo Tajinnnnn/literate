@@ -226,6 +226,7 @@ export default function Popup() {
       <label className="settings-row">Page appearance<button className="small-button" onClick={() => command(MSG.TOGGLE_DARK_MODE)}>{state?.darkMode ? 'Dark' : 'Light'}</button></label>
       <label className="settings-row">Highlight color<input type="color" aria-label="Highlight color" value={state?.highlightColor || '#ffe58a'} onChange={e => command(MSG.SET_HIGHLIGHT_COLOR, { color: e.target.value })} /></label>
       <h2>Keyboard shortcuts</h2>
+      <p className="page-subtitle">Optional. Leave a field empty to disable it.</p>
       {HOTKEY_FIELDS.map(([key, label]) => <label className="settings-row" key={key}>{label}<input className="shortcut-input" aria-label={`${label} shortcut`} value={(hotkeys[key] || '').toUpperCase()} maxLength={1} onChange={e => commitHotkey(key, e.target.value)} /></label>)}
       {fileAccessDenied && <div className="player-notice">To read local PDFs, enable file access for Literate.<button className="small-button" onClick={() => chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` })}>Open extension settings</button></div>}
     </section> : <>

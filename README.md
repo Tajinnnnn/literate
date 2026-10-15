@@ -20,7 +20,7 @@ Chrome 116 or newer is required. A compatible GPU gives the best performance; a 
 - Highlight text and use the **Read selection aloud** context menu for a precise text selection.
 - Open the **mini-player** for synchronized text. Click any word to resume from there.
 - Use **Keep on top** in the mini-player to open Chrome's floating Picture-in-Picture window.
-- Change speed during playback without regenerating the voice. Settings also offers voices, volume, shortcuts, and page highlighting.
+- Change speed during playback without regenerating the voice. Settings also offers voices, volume, optional shortcuts, and page highlighting. Keyboard shortcuts start empty; assign your own keys in Settings.
 - Choose light or dark mode and an accent color. Periwinkle is the default.
 
 Automatic article detection is best effort; Choose section is available when a site's layout needs a more precise reading area. Local PDFs require enabling **Allow access to file URLs** for Literate in Chrome's extension settings.

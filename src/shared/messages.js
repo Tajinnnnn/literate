@@ -24,10 +24,10 @@ export const MSG = {
 };
 
 export const DEFAULT_HOTKEYS = {
-  readPage: 'o',
-  pausePlay: 'p',
-  lock: 'l',
-  readFromHere: 'i',
-  slowDown: ',',
-  speedUp: '.',
+  readPage: '',
+  pausePlay: '',
+  lock: '',
+  readFromHere: '',
+  slowDown: '',
+  speedUp: '',
 };
