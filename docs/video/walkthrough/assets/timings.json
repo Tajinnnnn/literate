@@ -1,63 +1,83 @@
 {
   "audio": "assets/narration.wav",
-  "audioDuration": 71.1,
+  "audioDuration": 87.13058333333333,
   "source": "Actual Literate extension playback, Kokoro Heart (af_heart), recorded locally through Chrome tab audio",
-  "sourceFile": "raw/narration-v2-02.webm",
-  "sourceTrimStart": 10.85,
-  "sourceTrimEnd": 81.95,
-  "processing": "Only leading/trailing recording silence trimmed. Two-pass FFmpeg loudnorm targeting -19 LUFS and -1.5 dBTP, followed by 48 kHz mono PCM16 encoding. Tail padding/trim holds exactly the authored duration. No initial headroom attenuation, synthesis replacement, tempo change, internal cut, or leading padding. Original recording and trimmed master preserved.",
-  "sourceSHA256": "4ff05408a5ddb16f6cbbbaf58ddd5144b806da10193f76ea1cadfde00dbf868a",
-  "audioSHA256": "f37d91528ec58cbc98890566dde302792094e85dab0a78dbabe2d4a06beeb72f",
-  "trimmedOriginalAudioSHA256": "8a5dc4dfd5b9a4bce47c04879171ae0ea88a5ff1d08a9ab7af641d3845eac6c2",
-  "narrationScriptSHA256": "9705dbdc64094601141f9469ecde54a0caae71a7be686e8282065af3fa970e5b",
-  "canonicalWordCount": 176,
+  "sourceFile": "raw/narration-v3-01.webm",
+  "sourceTrimStart": 42.65,
+  "sourceTrimEnd": 133.47,
+  "processing": "Leading/trailing recording silence trimmed. One silent buffering pause shortened from the measured gap to 0.550 seconds; no spoken words removed or tempo change. Two-pass FFmpeg loudnorm targeting -19 LUFS and -1.5 dBTP, 48 kHz mono PCM16. Tail padding/trim holds the exact edited sample count. Raw, full unedited trimmed master, and silence-edited master are preserved.",
+  "sourceSHA256": "c6f117bde45163df54070ce72acde957ea2e0eadf1558759ff91ac9ab86dfc4d",
+  "audioSHA256": "37f682e8ad03b8c6bc78e5a17804e5f425e96f89b1e1308f8600d4c9558b15cd",
+  "trimmedOriginalAudioSHA256": "57ebdbc2b89c7fa9df648ff14f1add740a192e77a4657dde3610a4cfc00eaca3",
+  "narrationScriptSHA256": "b8f84fa13e28ee75186d45fa81a7f4ba7f53b026621467ca195de9a427adf3cc",
+  "canonicalWordCount": 219,
   "chapters": [
     {
       "index": 1,
-      "audioStart": 0.279542,
-      "text": "Literate is a free, open-source way to listen to articles, selected text, and local PDFs."
+      "audioStart": 0.275146,
+      "text": "Literate is a free, open-source extension built to read to you. It works with articles, selected text, and local PDFs."
     },
     {
       "index": 2,
-      "audioStart": 7.29,
-      "text": "There are two voice options. Instant uses installed device voices. Natural uses Kokoro, with an initial model download. The files stay cached for later reading."
+      "audioStart": 8.660583,
+      "text": "Instant voice mode uses voices already installed on your device and can start almost immediately, even on slower devices, though some voices may sound robotic. Natural voice mode uses a downloaded Kokoro model for more natural narration, but may need time to warm up before playback. Its files stay cached for later reading."
     },
     {
       "index": 3,
-      "audioStart": 18.03,
+      "audioStart": 29.807166,
       "text": "On an article, you can listen to the main text with words highlighted as it plays. Selected passages also have a right-click option: Read selection aloud."
     },
     {
       "index": 4,
-      "audioStart": 28.45,
+      "audioStart": 40.060583,
       "text": "The section picker lets you focus on a particular part of the page, leaving sidebars and related stories outside the reading area."
     },
     {
       "index": 5,
-      "audioStart": 35.85,
-      "text": "The mini-player keeps scrolling text nearby. You can click individual words to jump around, or pin the player above other windows in supported browsers."
+      "audioStart": 48.020583,
+      "text": "The mini player keeps scrolling text nearby. You can click individual words to jump around, or pin the player above other windows in supported browsers."
     },
     {
       "index": 6,
-      "audioStart": 43.83,
-      "text": "Speed, light and dark modes, and accent colors can all be adjusted. Periwinkle is the starting color."
+      "audioStart": 57.540583,
+      "text": "You can customize the narration speed and the extension\u2019s appearance, with light and dark modes and a choice of accent colors. Periwinkle is the default."
     },
     {
       "index": 7,
-      "audioStart": 52.13,
+      "audioStart": 67.660583,
       "text": "Local PDFs are supported with Chrome\u2019s file-access permission. The reader works with existing text, while scanned documents need text recognition first."
     },
     {
       "index": 8,
-      "audioStart": 61.77,
-      "text": "The speech runs on your device. Kokoro\u2019s files download from Hugging Face, and the source page needs to remain open while the mini-player is in use."
+      "audioStart": 77.660583,
+      "text": "The speech runs on your device. Kokoro\u2019s files download from Hugging Face, and the source page needs to remain open while the mini player is in use."
     }
   ],
   "audioLoudnessLUFS": -19.0,
   "truePeakDBTP": -1.5,
   "captionFile": "assets/captions.srt",
   "captionTiming": "Film-relative; includes the 1.5-second narration placement offset.",
-  "cueTimingBasis": "Local cached tiny.en ASR word alignment to canonical narration, with word starts corrected against measured leading/paragraph quiet spans. Approximate phonetic onsets; no canonical words omitted.",
-  "sourceSpeechSignalStart": 11.129542,
-  "sourceLastRecognizedWordEnd": 81.6
+  "cueTimingBasis": "Local cached tiny.en ASR word alignment to canonical narration, with word starts corrected against measured leading/paragraph quiet spans. Approximate phonetic onsets; no canonical words omitted. All cues after the one silent cut subtract its exact removed-sample duration.",
+  "sourceSpeechSignalStart": 42.925146,
+  "sourceLastRecognizedWordEnd": 133.12,
+  "silenceEdits": [
+    {
+      "type": "shortened_silent_buffering_pause",
+      "sourceStart": 46.828916666666665,
+      "sourceEnd": 50.51833333333333,
+      "sourceStartSample": 2247788,
+      "sourceEndSample": 2424880,
+      "removedSamples": 177092,
+      "removedSeconds": 3.689416666666667,
+      "measuredPauseStart": 46.553917,
+      "measuredPauseEnd": 50.793333,
+      "retainedPauseSamples": 26400,
+      "retainedPauseSeconds": 0.55,
+      "removedPcmPeakAbsoluteSteps": 0,
+      "cutBoundaryPcmValuesAreZero": true,
+      "mapping": "Before sourceStart: unchanged; after sourceEnd: subtract removedSeconds; no spoken samples removed."
+    }
+  ],
+  "sourceTrimmedUneditedDuration": 90.82,
+  "silenceEditedMasterSHA256": "265d2ae065e1c4d851c26378bc80537973ded8ae44a1ed8e478f2be87a9743e8"
 }

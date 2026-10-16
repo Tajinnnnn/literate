@@ -6,7 +6,7 @@
       "Your reading,",
       "out loud."
     ],
-    "body": "Articles, selected text, and local PDFs.",
+    "body": "Built to read to you. Articles, selected text, and local PDFs.",
     "note": "Free and open source."
   },
   {
@@ -16,8 +16,8 @@
       "Two ways",
       "to listen."
     ],
-    "body": "Instant uses installed device voices. Natural uses Kokoro, with model files cached after the first download.",
-    "note": "Speech is generated on your device."
+    "body": "Instant voice mode starts quickly, though voices can sound robotic. Natural voice mode uses Kokoro for more natural narration and may need to warm up.",
+    "note": "Natural’s model files stay cached after the initial download."
   },
   {
     "id": "reading",
@@ -45,7 +45,7 @@
       "Text that",
       "stays nearby."
     ],
-    "body": "The mini-player keeps text nearby, with clickable words and an option to stay above other windows.",
+    "body": "The mini player keeps text nearby, with clickable words and an option to stay above other windows.",
     "note": "Pin support varies by browser. The original page remains open."
   },
   {
@@ -55,8 +55,8 @@
       "Your pace.",
       "Your appearance."
     ],
-    "body": "Playback speed, light and dark modes, and accent colors are adjustable.",
-    "note": "Periwinkle is the starting color."
+    "body": "You can customize narration speed and the extension’s appearance, with light and dark modes and accent colors.",
+    "note": "Periwinkle is the default."
   },
   {
     "id": "pdf",
@@ -76,6 +76,6 @@
       "Your own pace."
     ],
     "body": "Speech runs on your device. Kokoro’s files download from Hugging Face.",
-    "note": "The source page stays open while the mini-player is in use."
+    "note": "The source page stays open while the mini player is in use."
   }
 ]

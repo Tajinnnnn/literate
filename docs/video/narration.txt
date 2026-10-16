@@ -1,15 +1,15 @@
-Literate is a free, open-source way to listen to articles, selected text, and local PDFs.
+Literate is a free, open-source extension built to read to you. It works with articles, selected text, and local PDFs.
 
-There are two voice options. Instant uses installed device voices. Natural uses Kokoro, with an initial model download. The files stay cached for later reading.
+Instant voice mode uses voices already installed on your device and can start almost immediately, even on slower devices, though some voices may sound robotic. Natural voice mode uses a downloaded Kokoro model for more natural narration, but may need time to warm up before playback. Its files stay cached for later reading.
 
 On an article, you can listen to the main text with words highlighted as it plays. Selected passages also have a right-click option: Read selection aloud.
 
 The section picker lets you focus on a particular part of the page, leaving sidebars and related stories outside the reading area.
 
-The mini-player keeps scrolling text nearby. You can click individual words to jump around, or pin the player above other windows in supported browsers.
+The mini player keeps scrolling text nearby. You can click individual words to jump around, or pin the player above other windows in supported browsers.
 
-Speed, light and dark modes, and accent colors can all be adjusted. Periwinkle is the starting color.
+You can customize the narration speed and the extension’s appearance, with light and dark modes and a choice of accent colors. Periwinkle is the default.
 
 Local PDFs are supported with Chrome’s file-access permission. The reader works with existing text, while scanned documents need text recognition first.
 
-The speech runs on your device. Kokoro’s files download from Hugging Face, and the source page needs to remain open while the mini-player is in use.
+The speech runs on your device. Kokoro’s files download from Hugging Face, and the source page needs to remain open while the mini player is in use.

@@ -2,7 +2,7 @@
 workflow: general-video
 mode: autonomous
 message: Learn the core Literate controls through a clear animated guide.
-duration: 75.100
+duration: 91.131
 ---
 
 Measured cues come from `assets/timings.json`, with a 1.5-second audio placement. The final chapter includes the 2.5-second closing hold. Each chapter has its own seekable composition; these are illustrations and do not impersonate captured UI.
@@ -11,7 +11,7 @@ Measured cues come from `assets/timings.json`, with a 1.5-second audio placement
 
 status: animated
 src: compositions/chapters/intro.html
-time: 0.000–8.790
+time: 0.000–10.161
 motion: spring-pop-entrance; stat-bars-and-fills
 
 Existing logo settles into place. Abstract listening bars animate under it. The title introduces free, open-source reading.
@@ -20,7 +20,7 @@ Existing logo settles into place. Abstract listening bars animate under it. The 
 
 status: animated
 src: compositions/chapters/voices.html
-time: 8.790–19.530
+time: 10.161–31.307
 motion: spring-pop-entrance
 
 Instant and Natural appear as a clear comparison. A model/download symbol explains Natural’s first-use download.
@@ -29,7 +29,7 @@ Instant and Natural appear as a clear comparison. A model/download symbol explai
 
 status: animated
 src: compositions/chapters/reading.html
-time: 19.530–29.950
+time: 31.307–41.561
 motion: spring-pop-entrance; press-release-spring; stat-bars-and-fills
 
 An article arrives, a play symbol responds, and a selected passage is revealed with the actual context-menu command written beneath.
@@ -38,7 +38,7 @@ An article arrives, a play symbol responds, and a selected passage is revealed w
 
 status: animated
 src: compositions/chapters/section.html
-time: 29.950–37.350
+time: 41.561–49.521
 motion: spring-pop-entrance
 
 An article and related sidebar appear. The article is outlined while the sidebar recedes.
@@ -47,7 +47,7 @@ An article and related sidebar appear. The article is outlined while the sidebar
 
 status: animated
 src: compositions/chapters/player.html
-time: 37.350–45.330
+time: 49.521–59.041
 motion: spring-pop-entrance
 
 A large illustrated player arrives. Its short text block scrolls, a jump instruction appears, and the pin is emphasized. No claim of live synchronization.
@@ -56,7 +56,7 @@ A large illustrated player arrives. Its short text block scrolls, a jump instruc
 
 status: animated
 src: compositions/chapters/appearance.html
-time: 45.330–53.630
+time: 59.041–69.161
 motion: spring-pop-entrance; stat-bars-and-fills
 
 The speed changes from 1.0× to 1.2×, the knob moves, the panel changes from light to dark, and the periwinkle swatch is emphasized. Narration itself is not retimed.
@@ -65,7 +65,7 @@ The speed changes from 1.0× to 1.2×, the knob moves, the panel changes from li
 
 status: animated
 src: compositions/chapters/pdf.html
-time: 53.630–63.270
+time: 69.161–79.161
 motion: spring-pop-entrance
 
 A PDF and file-access instruction appear; a check resolves the instruction. Scanned-PDF text recognition limitation stays readable.
@@ -74,7 +74,7 @@ A PDF and file-access instruction appear; a check resolves the instruction. Scan
 
 status: animated
 src: compositions/chapters/outro.html
-time: 63.270–75.100
+time: 79.161–91.131
 motion: spring-pop-entrance
 
 Logo and local privacy symbol settle, then hold with the repository URL for the final 2.5 seconds.

@@ -1,13 +1,13 @@
 {
   "status": "measured-animated-guide",
-  "duration": 75.1,
+  "duration": 91.130583,
   "audioStart": 1.5,
-  "audioDuration": 71.1,
+  "audioDuration": 87.130583,
   "outroHold": 2.5,
   "source": "Actual Literate extension playback, Kokoro Heart (af_heart), recorded locally through Chrome tab audio",
-  "processing": "Only leading/trailing recording silence trimmed. Two-pass FFmpeg loudnorm targeting -19 LUFS and -1.5 dBTP, followed by 48 kHz mono PCM16 encoding. Tail padding/trim holds exactly the authored duration. No initial headroom attenuation, synthesis replacement, tempo change, internal cut, or leading padding. Original recording and trimmed master preserved.",
-  "sourceSHA256": "4ff05408a5ddb16f6cbbbaf58ddd5144b806da10193f76ea1cadfde00dbf868a",
-  "audioSHA256": "f37d91528ec58cbc98890566dde302792094e85dab0a78dbabe2d4a06beeb72f",
+  "processing": "Leading/trailing recording silence trimmed. One silent buffering pause shortened from the measured gap to 0.550 seconds; no spoken words removed or tempo change. Two-pass FFmpeg loudnorm targeting -19 LUFS and -1.5 dBTP, 48 kHz mono PCM16. Tail padding/trim holds the exact edited sample count. Raw, full unedited trimmed master, and silence-edited master are preserved.",
+  "sourceSHA256": "c6f117bde45163df54070ce72acde957ea2e0eadf1558759ff91ac9ab86dfc4d",
+  "audioSHA256": "37f682e8ad03b8c6bc78e5a17804e5f425e96f89b1e1308f8600d4c9558b15cd",
   "music": {
     "title": "Sunset Plains",
     "author": "Yoiyami",
@@ -17,71 +17,72 @@
     "sourceFile": "sunset-plains.wav",
     "sourceSHA256": "f3750f8eda8bf42662b12f5726404675689b50f05ccaa968c5cb2e33d9172a62",
     "sourceStart": 30,
-    "excerptDuration": 75.1,
+    "excerptDuration": 91.13058333333333,
     "file": "assets/music-bed.wav",
-    "sha256": "eba8d5546da37e91e77df042ec5ca365fbd98c84f26b415fafb5b969ace37ae8",
-    "processing": "Excerpt from 30 seconds; two-pass quiet loudness normalization. Original source preserved. The frozen full-film PCM mix owns fades; final delivery uses the quiet bed without dynamic carve.",
+    "sha256": "be2f0e30a5ae749426b22438537983c298cfa51b07d158441f0fd2868e02f0fa",
+    "processing": "Excerpt from 30 seconds; fixed -16.89 dB gain preserves the verified v2 quiet music level. Original source and v2 excerpt preserved. The frozen full-film PCM mix owns entrance and exit fades; no dynamic carve.",
     "sampleRate": 48000,
     "channels": 2,
-    "loudnessLUFS": -33.93,
-    "truePeakDBTP": -22.9,
-    "normalizationType": "linear",
+    "normalizationType": "fixed-linear-gain",
     "carveStrength": 0,
     "fadeIn": 0.8,
-    "fadeOut": 2
+    "fadeOut": 2,
+    "linearGainDB": -16.89,
+    "loudnessLUFS": -33.81,
+    "truePeakDBTP": -22.65
   },
   "mix": {
     "file": "assets/film-mix.wav",
-    "sha256": "cbac85ac56c8578e58d7beffb73d064e70c9de12ff93d412d161a2d296d60b77",
+    "sha256": "23d63b54755a596788178c07d79e04cf6b9a5a39fd7455d474f2b614052ba8a5",
     "sampleRate": 48000,
     "channels": 2,
     "format": "PCM24",
     "voiceStart": 1.5,
     "musicFadeIn": 0.8,
     "musicFadeOut": 2,
-    "processing": "Unchanged verified voice delayed by 1.5 seconds, summed at unity with the quiet licensed bed and its short fades. No additional voice normalization, tempo change, or internal cut.",
+    "processing": "Frozen verified narration delayed by 1.5 seconds, summed at unity with the quiet licensed bed and its short fades. No further voice normalization, speed change, or edit is applied here; upstream silence cleanup is documented in narration processing.",
     "reason": "The component-mixed AAC candidate showed stereo reconstruction during a voice fricative; the isolated bed was clean. No audible click or carve defect was established. Final preview uses frozen PCM; final delivery disables AAC perceptual noise substitution and intensity stereo."
   },
   "chapters": [
     {
       "id": "intro",
       "start": 0,
-      "duration": 8.79
+      "duration": 10.160583
     },
     {
       "id": "voices",
-      "start": 8.79,
-      "duration": 10.740000000000002
+      "start": 10.160583,
+      "duration": 21.146583
     },
     {
       "id": "reading",
-      "start": 19.53,
-      "duration": 10.419999999999998
+      "start": 31.307166,
+      "duration": 10.253417000000002
     },
     {
       "id": "section",
-      "start": 29.95,
-      "duration": 7.400000000000002
+      "start": 41.560583,
+      "duration": 7.960000000000001
     },
     {
       "id": "player",
-      "start": 37.35,
-      "duration": 7.979999999999997
+      "start": 49.520583,
+      "duration": 9.519999999999996
     },
     {
       "id": "appearance",
-      "start": 45.33,
-      "duration": 8.300000000000004
+      "start": 59.040583,
+      "duration": 10.120000000000005
     },
     {
       "id": "pdf",
-      "start": 53.63,
-      "duration": 9.64
+      "start": 69.160583,
+      "duration": 10
     },
     {
       "id": "outro",
-      "start": 63.27,
-      "duration": 11.829999999999991
+      "start": 79.160583,
+      "duration": 11.969999999999999
     }
   ]
 }
