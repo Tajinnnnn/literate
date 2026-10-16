@@ -77,7 +77,7 @@ export class HoverToolbar {
         <span class="grip" title="Drag to move">⠿</span>
         <button class="lock" title="Lock scroll to reading position">🔓</button>
         <button class="rewind" title="Back to previous paragraph">⏮</button>
-        <button class="playpause" title="Play/Pause (P)">⏸</button>
+        <button class="playpause" title="Play / pause">⏸</button>
         <button class="forward" title="Forward to next paragraph">⏭</button>
         <div class="rate-group">
           <button class="slower" title="Slower">−</button>
@@ -242,8 +242,8 @@ export class HoverToolbar {
     this.playBtn.textContent = this.engine.isPaused() ? '▶' : '⏸';
     this.lockBtn.textContent = this.engine.followLock ? '🔒' : '🔓';
     this.lockBtn.title = this.engine.followLock
-      ? 'Scroll lock: on (page follows the reader) — Shortcut: L'
-      : 'Scroll lock: off (free scroll) — Shortcut: L';
+      ? 'Scroll lock: on (page follows the reader)'
+      : 'Scroll lock: off (free scroll)';
     if (this.shadow.activeElement !== this.rateInput) {
       this.rateInput.value = this.engine.rate.toFixed(1);
     }

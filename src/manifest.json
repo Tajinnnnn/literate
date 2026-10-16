@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Literate",
-  "description": "Browsing helpers: reads any webpage or selected text aloud with word-by-word highlighting, hover playback controls, and a one-click dark mode.",
-  "version": "1.0.4",
+  "description": "Listen to articles, selected text, and local PDFs with on-device voices, word highlighting, and a compact player.",
+  "version": "1.0.5",
   "background": {
     "service_worker": "background.bundle.js"
   },
@@ -46,20 +46,6 @@
       ],
       "css": [
         "content.styles.css"
-      ]
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "*.bundle.js",
-        "*.wasm",
-        "*.mjs"
-      ],
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "file:///*"
       ]
     }
   ],

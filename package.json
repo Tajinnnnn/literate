@@ -1,7 +1,7 @@
 {
   "name": "literate",
-  "version": "1.0.4",
-  "description": "Browsing helpers: reads any webpage or selected text aloud with word-by-word highlighting, hover playback controls, and a one-click dark mode.",
+  "version": "1.0.5",
+  "description": "Listen to articles, selected text, and local PDFs with on-device voices, word highlighting, and a compact player.",
   "license": "MIT",
   "scripts": {
     "build": "node utils/build.js",

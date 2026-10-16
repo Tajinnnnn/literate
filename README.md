@@ -51,3 +51,7 @@ Article text and generated speech stay on the device. Model, tokenizer, and voic
 Kokoro and its ONNX weights are published under Apache 2.0. The beta includes dependency license notices; embedded components such as eSpeak NG still need review before a public product release. This project retains the [MIT license](LICENSE) and attribution of the original extension boilerplate.
 
 This is an unpacked beta, not a Chrome Web Store publication.
+
+## Chrome Web Store preparation
+
+The [submission kit](store/README.md) contains listing copy, privacy/permission answers, required image assets, and remaining release gates. After a production build, run `python3 utils/package-store.py` to generate a checked store candidate and its SHA-256 report in `releases/`. This candidate retains both voice options and is not cleared for submission until the documented embedded-engine license and clean-install checks are complete.

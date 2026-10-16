@@ -1,0 +1,8 @@
+{
+  "package": "1.2.1",
+  "sha256": "193481f474f7c1ea81df3195d18b45df8ef7254dbdccb3f193d60215c4897bec",
+  "embedded_wasm": false,
+  "embedded_base64": true,
+  "referenced_urls": [],
+  "status": "Unresolved corresponding eSpeak NG source and redistribution obligations; wrapper Apache declaration does not settle embedded engine terms."
+}
