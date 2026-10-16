@@ -41,3 +41,9 @@ Before public submission: verify both voice modes and PDF playback after the cor
 ## Browser check after corrected reload
 
 Chrome's extension details reported 1.0.5 without the manifest-load failure. The original demo article played with Samantha and advanced through multiple sentences, and the mini-player opened. Heart then generated locally under the corrected policy and advanced to 56% of the same 135-word article. A newly created two-page local PDF loaded through the current generated PDF worker, extracted both pages, and Heart narrated all 21 words to a 100% Reading complete state. These checks use the existing macOS profile and cached model assets; clean-profile, Windows and cold-network checks remain outstanding. Automated suite: 64 tests pass; full source lint and production compilation pass, with large-asset/performance warnings only.
+
+## Final independent recheck
+
+An independent source review found one further local-PDF validation gap: empty-host file URLs can spell a network share using extra leading slashes or encoded backslashes. These forms are now rejected before fetch, with regression coverage preserving normal local paths and Windows drive paths. This is defense in depth; no Windows SMB request or website-to-extension exploit was demonstrated. The recheck found no additional concrete actionable issue after this change. Free/open-source distribution is the release direction; it does not remove third-party license obligations or the documented upstream dependency limitations.
+
+After the extra PDF path check: the full suite passes **65 tests**, source lint passes, and the production build passes with performance/asset-size warnings only. The upload candidate is regenerated from that build; the free/open-source decision does not claim that store submission or fresh-profile acceptance testing is complete.

@@ -1,5 +1,7 @@
 # Chrome Web Store submission kit
 
+Release direction: free and open source. No paid tier, subscription, billing or account requirement is planned for this release. The existing project license is unchanged; third-party redistribution requirements still need to be satisfied.
+
 Candidate: 1.0.5. Both Kokoro and installed device voices remain available. This directory prepares a listing; it does not mean the extension is published or approved.
 
 ## Files

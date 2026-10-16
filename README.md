@@ -2,7 +2,7 @@
 
 # Literate
 
-A minimal Chrome extension that reads articles, selected text, and local PDFs aloud. Choose natural Kokoro narration or instant installed device voices. Both run on your device—no VoiceStudio, account, API key, or speech server required.
+A free, open-source Chrome extension that reads articles, selected text, and local PDFs aloud. Choose natural Kokoro narration or instant installed device voices. Both run on your device—no VoiceStudio, account, API key, or speech server required.
 
 ## Install the beta
 
@@ -28,7 +28,7 @@ Automatic article detection is best effort; Choose section is available when a s
 
 ## Build from source
 
-Requires Node.js 22.12+ (Node 24 recommended) and npm.
+Requires Node.js 22.15+ (Node 24 recommended) and npm.
 
 ```sh
 npm ci --ignore-scripts

@@ -3,8 +3,12 @@ export const MAX_PDF_PAGES = 2000;
 export const MAX_PDF_TEXT = 10_000_000;
 export function localPdfUrl(value) {
   const url = new URL(value);
+  const pathname = decodeURIComponent(url.pathname);
+  // Empty-host file URLs can still express UNC shares using extra slashes;
+  // encoded backslashes must not acquire Windows path semantics after parsing.
   if (url.protocol !== 'file:' || (url.hostname && url.hostname !== 'localhost')
-      || url.search || url.hash || !decodeURIComponent(url.pathname).toLowerCase().endsWith('.pdf')) {
+      || pathname.startsWith('//') || pathname.includes('\\')
+      || url.search || url.hash || !pathname.toLowerCase().endsWith('.pdf')) {
     throw new Error('Choose a local .pdf file. Web addresses and network shares are not supported.');
   }
   return url.href;

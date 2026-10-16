@@ -25,3 +25,8 @@ test('normal PDF stream bytes retain their order', async () => {
  const data = await readPdfBytes({ body: { getReader: () => ({ read: async () => chunks.length ? { done: false, value: chunks.shift() } : { done: true }, releaseLock() {} }) } });
  assert.deepEqual([...data], [37,80,68,70]);
 });
+test('alternate UNC spellings cannot bypass the local-PDF boundary', () => {
+ for (const input of ['file:////server/share/notes.pdf', 'file://///server/share/notes.pdf', 'file:///%2Fserver/share/notes.pdf', 'file:///%5C%5Cserver/share/notes.pdf', 'file:///C:/%5Cserver/notes.pdf']) {
+  assert.throws(() => localPdfUrl(input), undefined, input);
+ }
+});
