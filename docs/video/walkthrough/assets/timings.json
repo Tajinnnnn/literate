@@ -1,0 +1,55 @@
+{
+  "audio": "assets/narration.wav",
+  "audioDuration": 60.35,
+  "source": "Actual Literate extension playback, Kokoro Heart (af_heart), recorded locally through Chrome tab audio",
+  "sourceTrimStart": 29.75,
+  "sourceTrimEnd": 90.1,
+  "processing": "Leading and trailing recording silence trimmed; -1.7 dB initial headroom, then two-pass loudness normalization to approximately -19 LUFS with -1.5 dBTP ceiling and 50 ms silent tail padding to preserve the 60.350-second authored duration. Original recording and trimmed master preserved separately. No synthesis replacement, tempo change or internal cuts.",
+  "sourceSHA256": "fa3b260b441b6de6be6399de8c35a4792b8cb0722e4b4f7d9351affb559c8285",
+  "audioSHA256": "3354a914d74c0222aa81561fd1d31b14a307e66fdf001fa4155368094fd08f51",
+  "chapters": [
+    {
+      "index": 1,
+      "audioStart": 0.275,
+      "text": "Meet Literate: a free, open-source reader for articles, selected text, and local PDFs."
+    },
+    {
+      "index": 2,
+      "audioStart": 7.055,
+      "text": "In Settings, choose Instant for the quickest start with installed device voices. Or choose Natural for Kokoro, which downloads its model before first use."
+    },
+    {
+      "index": 3,
+      "audioStart": 16.015,
+      "text": "Open an article, click Literate, and press Play. Follow the highlighted words. For a shorter passage, select the text, right-click, and choose Read selection aloud."
+    },
+    {
+      "index": 4,
+      "audioStart": 25.115,
+      "text": "Want to skip a sidebar? Choose section, point at the part you want, and click. Literate reads that section."
+    },
+    {
+      "index": 5,
+      "audioStart": 32.035,
+      "text": "Open the mini-player to follow the scrolling words. Click a word to jump there. Use the pin to keep the player above other windows."
+    },
+    {
+      "index": 6,
+      "audioStart": 39.135,
+      "text": "Adjust the speed, switch between light and dark, and choose your accent color."
+    },
+    {
+      "index": 7,
+      "audioStart": 43.695,
+      "text": "For local PDFs, enable Allow access to file URLs in Chrome\u2019s extension settings. Then open the PDF. Scanned documents need text recognition first."
+    },
+    {
+      "index": 8,
+      "audioStart": 54.575,
+      "text": "Your reading stays on your device. Keep the original page open, find your pace, and listen."
+    }
+  ],
+  "trimmedOriginalAudioSHA256": "5dcb6ba16932520a4fada8bfc9ca39ea537011a6725f56983427ad4206043b3e",
+  "audioLoudnessLUFS": -19.07,
+  "truePeakDBTP": -1.5
+}

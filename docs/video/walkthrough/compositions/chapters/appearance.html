@@ -1,0 +1,68 @@
+<template><style>
+#scene-appearance { position:absolute; inset:0; width:1920px; height:1080px; padding:210px 80px 150px; display:grid; grid-template-columns:760px 920px; gap:80px; color:#f2f0f5; font-family:Montserrat,sans-serif; }
+#scene-appearance * { box-sizing:border-box; margin:0; }
+#scene-appearance .copy { padding-top:18px; }
+#scene-appearance .label { color:#9aa0ff; font-family:'IBM Plex Mono',monospace; font-size:22px; letter-spacing:.04em; margin-bottom:34px; line-height:1.4; }
+#scene-appearance h1 { font-size:88px; line-height:1.04; font-weight:900; letter-spacing:-.045em; width:760px; margin-bottom:34px; }
+#scene-appearance h1 span { display:block; }
+#scene-appearance .body { width:730px; font-size:31px; line-height:1.45; color:#e3e1ea; letter-spacing:-.014em; }
+#scene-appearance .note { width:710px; font-size:24px; line-height:1.4; color:#b6b8c6; margin-top:28px; }
+#scene-appearance .visual { width:920px; height:690px; position:relative; }
+#scene-appearance .symbol { width:100px; height:100px; }
+#scene-appearance .hero-logo { position:absolute; width:300px; height:300px; left:310px; top:34px; }
+#scene-appearance .hero-logo svg { width:100%; height:100%; }
+#scene-appearance .art-caption { position:absolute; bottom:62px; width:100%; text-align:center; color:#b6b8c6; font-size:30px; letter-spacing:-.02em; }
+#scene-appearance .wave { position:absolute; top:382px; left:270px; width:380px; height:170px; display:flex; align-items:center; justify-content:center; gap:20px; }
+#scene-appearance .wave div { width:32px; border-radius:20px; background:#9aa0ff; transform-origin:center; }
+#scene-appearance .voice-row { position:absolute; left:10px; top:20px; width:900px; height:230px; border:2px solid #353742; border-radius:30px; background:#1c1e25; padding:50px 42px; display:flex; gap:34px; align-items:center; }
+#scene-appearance .voice-row.natural { top:280px; height:280px; padding-top:34px; align-items:flex-start; }
+#scene-appearance .voice-row h2 { font-size:46px; font-weight:700; margin-bottom:12px; letter-spacing:-.03em; }
+#scene-appearance .voice-row p { font-size:28px; color:#b6b8c6; }
+#scene-appearance .voice-symbol { color:#9aa0ff; }
+#scene-appearance .download-note { position:absolute; left:176px; bottom:36px; font-size:25px; color:#9aa0ff; }
+#scene-appearance .model-chip { position:absolute; bottom:30px; left:330px; display:flex; align-items:center; gap:18px; font-family:'IBM Plex Mono',monospace; font-size:25px; color:#9aa0ff; }
+#scene-appearance .model-chip .symbol { width:50px; height:50px; }
+#scene-appearance .paper, #scene-appearance .article-pane { position:absolute; background:#1c1e25; border:2px solid #353742; border-radius:30px; padding:44px; }
+#scene-appearance .paper { width:670px; height:604px; left:80px; top:20px; }
+#scene-appearance .paper-label { font-family:'IBM Plex Mono',monospace; color:#b6b8c6; font-size:22px; margin-bottom:34px; }
+#scene-appearance .line { height:17px; border-radius:6px; background:#555a6c; margin-bottom:25px; }
+#scene-appearance .selected-line { height:58px; padding:8px 15px; background:#9aa0ff; color:#161726; border-radius:8px; font-size:29px; font-weight:700; margin-bottom:25px; transform-origin:left center; }
+#scene-appearance .play-orb { position:absolute; width:142px; height:142px; left:690px; top:456px; background:#9aa0ff; color:#202234; border:8px solid #111215; border-radius:50%; display:grid; place-items:center; }
+#scene-appearance .play-orb .symbol { width:76px; height:76px; }
+#scene-appearance .selection-label { position:absolute; left:200px; bottom:4px; padding:19px 27px; border:2px solid #656bad; background:#25283b; color:#dddfff; border-radius:14px; font-size:28px; }
+#scene-appearance .article-pane { width:610px; height:560px; left:8px; top:24px; }
+#scene-appearance .sidebar { position:absolute; width:246px; height:480px; top:24px; right:0; padding:35px 26px; background:#1c1e25; border:2px solid #353742; border-radius:24px; }
+#scene-appearance .sidebar .paper-label { font-size:21px; }
+#scene-appearance .selection-outline { position:absolute; left:0; top:16px; width:626px; height:576px; border:5px solid #9aa0ff; border-radius:36px; }
+#scene-appearance .player-pane { position:absolute; left:26px; top:10px; width:868px; height:580px; border-radius:36px; background:#1c1e25; border:2px solid #353742; padding:36px 44px; overflow:hidden; }
+#scene-appearance .player-top { display:flex; justify-content:space-between; align-items:center; font-family:'IBM Plex Mono',monospace; font-size:24px; color:#b6b8c6; }
+#scene-appearance .player-top .symbol { width:42px; height:42px; }
+#scene-appearance .player-text { margin-top:24px; font-size:54px; font-weight:700; letter-spacing:-.035em; line-height:1.15; }
+#scene-appearance .player-transport { display:flex; align-items:center; justify-content:center; gap:44px; margin:22px 0; }
+#scene-appearance .short-rule { width:66px; height:4px; background:#555a6c; }
+#scene-appearance .small-play { width:72px; height:72px; border-radius:50%; background:#9aa0ff; color:#202234; display:grid; place-items:center; }
+#scene-appearance .small-play .symbol { width:44px; height:44px; }
+#scene-appearance .lyric-window { height:120px; overflow:hidden; border-top:2px solid #353742; padding-top:16px; }
+#scene-appearance .lyric-window p { font-size:38px; line-height:62px; color:#b6b8c6; letter-spacing:-.025em; }
+#scene-appearance .lyric-window p.accent { color:#b4b8ff; }
+#scene-appearance .jump-note { position:absolute; bottom:22px; width:100%; text-align:center; font-size:29px; color:#b4b8ff; }
+#scene-appearance .appearance-pane { position:absolute; width:780px; height:520px; left:70px; top:20px; background:#f5f2e9; border-radius:38px; padding:42px 64px; color:#232636; }
+#scene-appearance .panel-label { font-family:'IBM Plex Mono',monospace; font-size:24px; }
+#scene-appearance .speed-number { position:relative; height:210px; font-size:142px; line-height:1.3; font-weight:700; letter-spacing:-.05em; }
+#scene-appearance .speed-number span { position:absolute; left:0; top:0; }
+#scene-appearance .speed-track { width:620px; height:10px; background:#7e83bd; border-radius:8px; margin:16px 0 48px; }
+#scene-appearance .speed-track div { width:42px; height:42px; transform:translateY(-16px); border-radius:50%; background:#9aa0ff; }
+#scene-appearance .theme-labels { display:flex; justify-content:space-between; font-size:32px; }
+#scene-appearance .swatches { position:absolute; bottom:38px; left:300px; display:flex; gap:32px; }
+#scene-appearance .swatches div { width:76px; height:76px; border-radius:50%; border:4px solid #111215; outline:2px solid #454958; }
+#scene-appearance .pdf-sheet { position:absolute; width:450px; height:570px; left:235px; top:2px; background:#e9e7f1; color:#31364e; padding:38px; border-radius:24px; }
+#scene-appearance .pdf-sheet p { font-family:'IBM Plex Mono',monospace; font-size:64px; font-weight:700; margin-bottom:42px; }
+#scene-appearance .pdf-sheet .line { background:#989aac; height:13px; }
+#scene-appearance .permission-note { position:absolute; bottom:24px; left:16px; width:888px; height:108px; display:flex; gap:22px; align-items:center; padding:22px 28px; border:2px solid #656bad; border-radius:20px; background:#25283b; color:#dddfff; }
+#scene-appearance .permission-note p { font-size:31px; font-weight:700; letter-spacing:-.02em; }
+#scene-appearance .permission-check { width:54px; height:54px; color:#b4b8ff; }
+#scene-appearance .permission-check .symbol { width:54px; height:54px; }
+#scene-appearance .privacy-mark { position:absolute; top:388px; left:240px; width:440px; display:flex; gap:22px; align-items:center; justify-content:center; color:#b4b8ff; }
+#scene-appearance .privacy-mark .symbol { width:64px; height:64px; }
+#scene-appearance .privacy-mark p { font-size:32px; }
+</style><div id="scene-appearance" data-composition-id="scene-appearance" data-width="1920" data-height="1080"><div class="copy"><p class="label">05 / MAKE IT YOURS</p><h1><span>Your pace.</span><span>Your appearance.</span></h1><p class="body">Change the speed, switch between light and dark, and choose your accent color.</p></div><div id="appearance-visual" class="visual"><div id="appearance-panel" class="appearance-pane"><p class="panel-label">PLAYBACK SPEED</p><div class="speed-number"><span id="appearance-one">1.0×</span><span id="appearance-two">1.2×</span></div><div class="speed-track"><div id="appearance-knob"></div></div><div class="theme-labels"><span>Light</span><span>Dark</span></div></div><div class="swatches"><div id="swatch-blue" style="background:#9aa0ff"></div><div style="background:#8bdbb5"></div><div style="background:#ff918d"></div></div></div></div><script>const tl=gsap.timeline({paused:true}); tl.fromTo('#scene-appearance .copy',{y:18,opacity:0},{y:0,opacity:1,duration:.48,ease:'power3.out'},.08); tl.fromTo('#appearance-panel',{scale:.94,opacity:0},{scale:1,opacity:1,duration:.55,ease:'power3.out'},.1); tl.set('#appearance-two',{opacity:0},0); tl.set('#appearance-one',{opacity:0},1.3); tl.set('#appearance-two',{opacity:1},1.3); tl.fromTo('#appearance-knob',{x:0},{x:290,duration:.65,ease:'power2.inOut'},1.1); tl.set('#appearance-panel',{backgroundColor:'#20222a',color:'#f2f0f5'},2.1); tl.fromTo('#swatch-blue',{scale:.85},{scale:1.15,duration:.4,ease:'power3.out'},3.1); window.__timelines['scene-appearance']=tl;</script></template>

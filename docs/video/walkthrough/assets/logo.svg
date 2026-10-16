@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Literate — reading, aloud</title>
+  <rect width="128" height="128" rx="28" fill="#9aa0ff"/>
+  <g fill="none" stroke="#202234" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M23 35Q36 32 49 42Q62 32 75 35V87Q61 84 49 94Q36 84 23 87Z"/>
+    <path d="M49 42V94"/>
+    <path d="M86 51C93 58 93 72 86 79"/>
+    <path d="M98 40C112 53 112 77 98 90"/>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+.hyperframes/
+.thumbnails/
+.waveform-cache/
+archive/
+renders/
+*.mp4
+*.webm
+*.log

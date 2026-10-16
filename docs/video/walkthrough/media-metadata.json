@@ -1,0 +1,53 @@
+{
+  "status": "measured-animated-guide",
+  "duration": 64.35,
+  "audioStart": 1.5,
+  "audioDuration": 60.35,
+  "outroHold": 2.5,
+  "source": "Actual Literate extension playback, Kokoro Heart (af_heart), recorded locally through Chrome tab audio",
+  "processing": "Leading and trailing recording silence trimmed; -1.7 dB initial headroom, then two-pass loudness normalization to approximately -19 LUFS with -1.5 dBTP ceiling and 50 ms silent tail padding to preserve the 60.350-second authored duration. Original recording and trimmed master preserved separately. No synthesis replacement, tempo change or internal cuts.",
+  "chapters": [
+    {
+      "id": "intro",
+      "start": 0,
+      "duration": 8.555
+    },
+    {
+      "id": "voices",
+      "start": 8.555,
+      "duration": 8.96
+    },
+    {
+      "id": "reading",
+      "start": 17.515,
+      "duration": 9.099999999999998
+    },
+    {
+      "id": "section",
+      "start": 26.615,
+      "duration": 6.919999999999998
+    },
+    {
+      "id": "player",
+      "start": 33.535,
+      "duration": 7.100000000000001
+    },
+    {
+      "id": "appearance",
+      "start": 40.635,
+      "duration": 4.560000000000002
+    },
+    {
+      "id": "pdf",
+      "start": 45.195,
+      "duration": 10.880000000000003
+    },
+    {
+      "id": "outro",
+      "start": 56.075,
+      "duration": 8.274999999999991
+    }
+  ],
+  "sourceSHA256": "fa3b260b441b6de6be6399de8c35a4792b8cb0722e4b4f7d9351affb559c8285",
+  "audioSHA256": "3354a914d74c0222aa81561fd1d31b14a307e66fdf001fa4155368094fd08f51"
+}

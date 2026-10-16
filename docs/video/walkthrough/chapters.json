@@ -1,0 +1,80 @@
+[
+  {
+    "id": "intro",
+    "label": "MEET LITERATE",
+    "title": [
+      "Your reading,",
+      "out loud."
+    ],
+    "body": "Articles, selected text, and local PDFs.",
+    "note": "Free and open source."
+  },
+  {
+    "id": "voices",
+    "label": "01 / VOICES",
+    "title": [
+      "Choose your",
+      "voice."
+    ],
+    "body": "Instant uses installed device voices. Natural uses Kokoro on your device.",
+    "note": "First Natural use downloads the model and voice files."
+  },
+  {
+    "id": "reading",
+    "label": "02 / START READING",
+    "title": [
+      "Read a page.",
+      "Or a passage."
+    ],
+    "body": "Open an article, click Literate, and press Play. For selected text, right-click and choose Read selection aloud."
+  },
+  {
+    "id": "section",
+    "label": "03 / CHOOSE SECTION",
+    "title": [
+      "Choose what",
+      "you hear."
+    ],
+    "body": "Click Choose section, point at the part you want, and click.",
+    "note": "Leave sidebars and related stories out of the read."
+  },
+  {
+    "id": "player",
+    "label": "04 / MINI-PLAYER",
+    "title": [
+      "Keep the words",
+      "nearby."
+    ],
+    "body": "Open the mini-player. Click a word to jump there. Pin it above other windows.",
+    "note": "Keep the original reading page open. Pin support varies by browser."
+  },
+  {
+    "id": "appearance",
+    "label": "05 / MAKE IT YOURS",
+    "title": [
+      "Your pace.",
+      "Your appearance."
+    ],
+    "body": "Change the speed, switch between light and dark, and choose your accent color."
+  },
+  {
+    "id": "pdf",
+    "label": "06 / LOCAL PDFS",
+    "title": [
+      "Local PDFs,",
+      "read aloud."
+    ],
+    "body": "In Chrome’s Literate settings, enable Allow access to file URLs. Then open your PDF.",
+    "note": "Scanned PDFs need text recognition first."
+  },
+  {
+    "id": "outro",
+    "label": "KEEP LISTENING",
+    "title": [
+      "Private listening.",
+      "Your own pace."
+    ],
+    "body": "Your speech is generated on your device. Keep the source page open and listen.",
+    "note": "Find the extension and setup guide on GitHub."
+  }
+]
