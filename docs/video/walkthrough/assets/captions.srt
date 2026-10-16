@@ -1,81 +1,81 @@
 1
-00:00:01,753 --> 00:00:05,335
-Meet Literate: a free, open-source reader
-for articles,
+00:00:01,755 --> 00:00:05,290
+Literate is a free, open-source way to
+listen to articles,
 
 2
-00:00:05,830 --> 00:00:08,530
+00:00:05,885 --> 00:00:08,430
 selected text, and local PDFs.
 
 3
-00:00:08,530 --> 00:00:11,270
-In Settings, choose Instant for the
-quickest start with
+00:00:08,765 --> 00:00:13,070
+There are two voice options. Instant uses
+installed device voices.
 
 4
-00:00:11,270 --> 00:00:14,795
-installed device voices. Or choose Natural
-for Kokoro,
+00:00:13,625 --> 00:00:16,445
+Natural uses Kokoro, with an initial model
+download.
 
 5
-00:00:14,870 --> 00:00:17,055
-which downloads its model before first
-use.
+00:00:16,445 --> 00:00:19,190
+The files stay cached for later reading.
 
 6
-00:00:17,490 --> 00:00:19,935
-Open an article, click Literate, and press
-Play.
+00:00:19,505 --> 00:00:24,010
+On an article, you can listen to the main
+text with words highlighted as it plays.
 
 7
-00:00:20,250 --> 00:00:22,995
-Follow the highlighted words. For a
-shorter passage,
+00:00:24,665 --> 00:00:29,150
+Selected passages also have a right-click
+option: Read selection aloud.
 
 8
-00:00:23,070 --> 00:00:26,295
-select the text, right-click, and choose
-Read selection aloud.
+00:00:29,925 --> 00:00:33,270
+The section picker lets you focus on a
+particular part of the page,
 
 9
-00:00:26,590 --> 00:00:30,250
-Want to skip a sidebar? Choose section,
-point at the part you want,
+00:00:33,605 --> 00:00:36,850
+leaving sidebars and related stories
+outside the reading area.
 
 10
-00:00:30,250 --> 00:00:33,115
-and click. Literate reads that section.
+00:00:37,325 --> 00:00:41,365
+The mini-player keeps scrolling text
+nearby. You can click individual words
 
 11
-00:00:33,510 --> 00:00:35,895
-Open the mini-player to follow the
-scrolling words.
+00:00:41,365 --> 00:00:45,305
+to jump around, or pin the player above
+other windows in supported browsers.
 
 12
-00:00:36,250 --> 00:00:40,095
-Click a word to jump there. Use the pin to
-keep the player above other windows.
+00:00:45,305 --> 00:00:50,470
+Speed, light and dark modes, and accent
+colors can all be adjusted.
 
 13
-00:00:40,610 --> 00:00:44,795
-Adjust the speed, switch between light and
-dark, and choose your accent color.
+00:00:51,105 --> 00:00:53,010
+Periwinkle is the starting color.
 
 14
-00:00:45,170 --> 00:00:50,355
-For local PDFs, enable Allow access to
-file URLs in Chrome’s extension settings.
+00:00:53,605 --> 00:00:58,065
+Local PDFs are supported with Chrome’s
+file-access permission. The reader
 
 15
-00:00:50,730 --> 00:00:55,315
-Then open the PDF. Scanned documents need
-text recognition first.
+00:00:58,065 --> 00:01:02,810
+works with existing text, while scanned
+documents need text recognition first.
 
 16
-00:00:56,050 --> 00:00:57,650
-Your reading stays on your device.
+00:01:03,245 --> 00:01:08,310
+The speech runs on your device. Kokoro’s
+files download from Hugging Face,
 
 17
-00:00:57,650 --> 00:01:01,535
-Keep the original page open, find your
-pace, and listen.
+00:01:08,405 --> 00:01:12,350
+and the source page needs to remain open
+while the mini-player is in use.

@@ -1,55 +1,63 @@
 {
   "audio": "assets/narration.wav",
-  "audioDuration": 60.35,
+  "audioDuration": 71.1,
   "source": "Actual Literate extension playback, Kokoro Heart (af_heart), recorded locally through Chrome tab audio",
-  "sourceTrimStart": 29.75,
-  "sourceTrimEnd": 90.1,
-  "processing": "Leading and trailing recording silence trimmed; -1.7 dB initial headroom, then two-pass loudness normalization to approximately -19 LUFS with -1.5 dBTP ceiling and 50 ms silent tail padding to preserve the 60.350-second authored duration. Original recording and trimmed master preserved separately. No synthesis replacement, tempo change or internal cuts.",
-  "sourceSHA256": "fa3b260b441b6de6be6399de8c35a4792b8cb0722e4b4f7d9351affb559c8285",
-  "audioSHA256": "3354a914d74c0222aa81561fd1d31b14a307e66fdf001fa4155368094fd08f51",
+  "sourceFile": "raw/narration-v2-02.webm",
+  "sourceTrimStart": 10.85,
+  "sourceTrimEnd": 81.95,
+  "processing": "Only leading/trailing recording silence trimmed. Two-pass FFmpeg loudnorm targeting -19 LUFS and -1.5 dBTP, followed by 48 kHz mono PCM16 encoding. Tail padding/trim holds exactly the authored duration. No initial headroom attenuation, synthesis replacement, tempo change, internal cut, or leading padding. Original recording and trimmed master preserved.",
+  "sourceSHA256": "4ff05408a5ddb16f6cbbbaf58ddd5144b806da10193f76ea1cadfde00dbf868a",
+  "audioSHA256": "f37d91528ec58cbc98890566dde302792094e85dab0a78dbabe2d4a06beeb72f",
+  "trimmedOriginalAudioSHA256": "8a5dc4dfd5b9a4bce47c04879171ae0ea88a5ff1d08a9ab7af641d3845eac6c2",
+  "narrationScriptSHA256": "9705dbdc64094601141f9469ecde54a0caae71a7be686e8282065af3fa970e5b",
+  "canonicalWordCount": 176,
   "chapters": [
     {
       "index": 1,
-      "audioStart": 0.275,
-      "text": "Meet Literate: a free, open-source reader for articles, selected text, and local PDFs."
+      "audioStart": 0.279542,
+      "text": "Literate is a free, open-source way to listen to articles, selected text, and local PDFs."
     },
     {
       "index": 2,
-      "audioStart": 7.055,
-      "text": "In Settings, choose Instant for the quickest start with installed device voices. Or choose Natural for Kokoro, which downloads its model before first use."
+      "audioStart": 7.29,
+      "text": "There are two voice options. Instant uses installed device voices. Natural uses Kokoro, with an initial model download. The files stay cached for later reading."
     },
     {
       "index": 3,
-      "audioStart": 16.015,
-      "text": "Open an article, click Literate, and press Play. Follow the highlighted words. For a shorter passage, select the text, right-click, and choose Read selection aloud."
+      "audioStart": 18.03,
+      "text": "On an article, you can listen to the main text with words highlighted as it plays. Selected passages also have a right-click option: Read selection aloud."
     },
     {
       "index": 4,
-      "audioStart": 25.115,
-      "text": "Want to skip a sidebar? Choose section, point at the part you want, and click. Literate reads that section."
+      "audioStart": 28.45,
+      "text": "The section picker lets you focus on a particular part of the page, leaving sidebars and related stories outside the reading area."
     },
     {
       "index": 5,
-      "audioStart": 32.035,
-      "text": "Open the mini-player to follow the scrolling words. Click a word to jump there. Use the pin to keep the player above other windows."
+      "audioStart": 35.85,
+      "text": "The mini-player keeps scrolling text nearby. You can click individual words to jump around, or pin the player above other windows in supported browsers."
     },
     {
       "index": 6,
-      "audioStart": 39.135,
-      "text": "Adjust the speed, switch between light and dark, and choose your accent color."
+      "audioStart": 43.83,
+      "text": "Speed, light and dark modes, and accent colors can all be adjusted. Periwinkle is the starting color."
     },
     {
       "index": 7,
-      "audioStart": 43.695,
-      "text": "For local PDFs, enable Allow access to file URLs in Chrome\u2019s extension settings. Then open the PDF. Scanned documents need text recognition first."
+      "audioStart": 52.13,
+      "text": "Local PDFs are supported with Chrome\u2019s file-access permission. The reader works with existing text, while scanned documents need text recognition first."
     },
     {
       "index": 8,
-      "audioStart": 54.575,
-      "text": "Your reading stays on your device. Keep the original page open, find your pace, and listen."
+      "audioStart": 61.77,
+      "text": "The speech runs on your device. Kokoro\u2019s files download from Hugging Face, and the source page needs to remain open while the mini-player is in use."
     }
   ],
-  "trimmedOriginalAudioSHA256": "5dcb6ba16932520a4fada8bfc9ca39ea537011a6725f56983427ad4206043b3e",
-  "audioLoudnessLUFS": -19.07,
-  "truePeakDBTP": -1.5
+  "audioLoudnessLUFS": -19.0,
+  "truePeakDBTP": -1.5,
+  "captionFile": "assets/captions.srt",
+  "captionTiming": "Film-relative; includes the 1.5-second narration placement offset.",
+  "cueTimingBasis": "Local cached tiny.en ASR word alignment to canonical narration, with word starts corrected against measured leading/paragraph quiet spans. Approximate phonetic onsets; no canonical words omitted.",
+  "sourceSpeechSignalStart": 11.129542,
+  "sourceLastRecognizedWordEnd": 81.6
 }

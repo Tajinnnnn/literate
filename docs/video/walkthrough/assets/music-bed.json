@@ -1,0 +1,22 @@
+{
+  "title": "Sunset Plains",
+  "author": "Yoiyami",
+  "sourceURL": "https://opengameart.org/content/sunset-plains",
+  "license": "CC0-1.0",
+  "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "sourceFile": "sunset-plains.wav",
+  "sourceSHA256": "f3750f8eda8bf42662b12f5726404675689b50f05ccaa968c5cb2e33d9172a62",
+  "sourceStart": 30,
+  "excerptDuration": 75.1,
+  "file": "assets/music-bed.wav",
+  "sha256": "eba8d5546da37e91e77df042ec5ca365fbd98c84f26b415fafb5b969ace37ae8",
+  "processing": "Excerpt from 30 seconds; two-pass quiet loudness normalization. Original source preserved. The frozen full-film PCM mix owns fades; final delivery uses the quiet bed without dynamic carve.",
+  "sampleRate": 48000,
+  "channels": 2,
+  "loudnessLUFS": -33.93,
+  "truePeakDBTP": -22.9,
+  "normalizationType": "linear",
+  "carveStrength": 0,
+  "fadeIn": 0.8,
+  "fadeOut": 2
+}
