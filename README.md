@@ -11,7 +11,7 @@ A minimal Chrome extension that reads articles, selected text, and local PDFs al
 3. Open Chrome's Extensions page, enable **Developer mode**, choose **Load unpacked**, and select the extracted folder.
 4. Open an article and click Literate. In Settings, choose **Instant — device voices** for speech without a model download, or **Natural — Kokoro** for generated narration.
 
-Chrome 116 or newer is required. Kokoro downloads its model on first playback; a compatible GPU gives the best performance and a CPU/WASM fallback is included. The GPU model download is approximately 315 MB and is cached separately from the extension. The shared worker keeps one loaded model across pages until Chrome or the extension restarts. Device mode uses installed local English voices, filters novelty and network-backed voices, and remembers your engine choice across pages.
+Chrome 116 or newer is required. Kokoro downloads its model on first playback; a compatible GPU gives the best performance and a CPU/WASM fallback is included. The GPU model download is approximately 326 MB and is cached separately from the extension. The shared worker keeps one loaded model across pages until Chrome or the extension restarts. Device mode uses installed local English voices, filters novelty and network-backed voices, and remembers your engine choice across pages.
 
 ## Reading
 
@@ -31,7 +31,7 @@ Automatic article detection is best effort; Choose section is available when a s
 Requires Node.js 22.12+ (Node 24 recommended) and npm.
 
 ```sh
-npm ci
+npm ci --ignore-scripts
 npm test
 npm run build
 ```
@@ -55,3 +55,5 @@ This is an unpacked beta, not a Chrome Web Store publication.
 ## Chrome Web Store preparation
 
 The [submission kit](store/README.md) contains listing copy, privacy/permission answers, required image assets, and remaining release gates. After a production build, run `python3 utils/package-store.py` to generate a checked store candidate and its SHA-256 report in `releases/`. This candidate retains both voice options and is not cleared for submission until the documented embedded-engine license and clean-install checks are complete.
+
+Development tools require Node 22.15 or newer. Dependency installation scripts are not needed for the browser build. The development server accepts loopback hosts only and does not grant cross-origin access to arbitrary websites.

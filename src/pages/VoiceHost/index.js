@@ -1,3 +1,4 @@
+import { voiceBroker, validVoiceRequest } from '../../shared/security.mjs';
 // The WORKERS offscreen reason owns this dedicated inference worker.
 let worker;
 let nextId = 0;
@@ -16,7 +17,7 @@ function getWorker() {
   return worker;
 }
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type !== 'TTSXR_VOICE_HOST' || sender.id !== chrome.runtime.id) return false;
+  if (message?.type !== 'TTSXR_VOICE_HOST' || !voiceBroker(sender, chrome.runtime) || !validVoiceRequest(message)) return false;
   const id = ++nextId;
   pending.set(id, sendResponse);
   getWorker().postMessage({ id, command: message.command, payload: message.payload, assetBase: chrome.runtime.getURL('') });

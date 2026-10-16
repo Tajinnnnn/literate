@@ -1,3 +1,4 @@
+import { voiceRequester, validVoiceRequest } from '../../shared/security.mjs';
 let creating;
 export async function ensureVoiceHost() {
   const url = chrome.runtime.getURL('voice-host.html');
@@ -10,11 +11,11 @@ export async function ensureVoiceHost() {
   try { await creating; } finally { creating = null; }
 }
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type !== 'TTSXR_VOICE_REQUEST' || sender.id !== chrome.runtime.id) return false;
+  if (message?.type !== 'TTSXR_VOICE_REQUEST' || !voiceRequester(sender, chrome.runtime) || !validVoiceRequest(message)) return false;
   (async () => {
     try {
       await ensureVoiceHost();
-      const result = await chrome.runtime.sendMessage({ ...message, type: 'TTSXR_VOICE_HOST' });
+      const result = await chrome.runtime.sendMessage({ type: 'TTSXR_VOICE_HOST', command: message.command, payload: message.payload });
       sendResponse(result || { ok: false, error: 'Voice worker did not respond.' });
     } catch (error) { sendResponse({ ok: false, error: error.message }); }
   })();

@@ -32,7 +32,7 @@
     "https://*.hf.co/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+    "extension_pages": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; object-src 'none'; connect-src 'self' file: https://huggingface.co https://*.hf.co; img-src 'self' data:; style-src 'self' 'unsafe-inline'; media-src 'self' blob:; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-src 'none';"
   },
   "content_scripts": [
     {

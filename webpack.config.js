@@ -5,6 +5,7 @@ var webpack = require('webpack'),
   CopyWebpackPlugin = require('copy-webpack-plugin'),
   HtmlWebpackPlugin = require('html-webpack-plugin'),
   TerserPlugin = require('terser-webpack-plugin');
+var RuntimeAssetsPlugin = require('./utils/runtime-assets.cjs');
 var { CleanWebpackPlugin } = require('clean-webpack-plugin');
 var ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 var ReactRefreshTypeScript = require('react-refresh-typescript');
@@ -122,6 +123,7 @@ var options = {
             loader: require.resolve('babel-loader'),
             options: {
               plugins: [
+    new RuntimeAssetsPlugin(),
                 isDevelopment && require.resolve('react-refresh/babel'),
               ].filter(Boolean),
             },
@@ -138,6 +140,7 @@ var options = {
       .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
   },
   plugins: [
+    new RuntimeAssetsPlugin(),
     new HtmlWebpackPlugin({ template: path.join(__dirname, 'src/pages/VoiceHost/index.html'), filename: 'voice-host.html', chunks: ['voiceHost'], cache: false }),
     isDevelopment && new ReactRefreshWebpackPlugin(),
     new CleanWebpackPlugin({ verbose: false }),

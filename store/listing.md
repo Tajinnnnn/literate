@@ -24,7 +24,7 @@ Make room for reading with Literate. Listen to an article, selected text, or a l
 
 Your reading content stays on your device. No Literate account, voice-service API key, VoiceStudio installation, or developer tools are required.
 
-Natural mode downloads voice-model data from Hugging Face the first time you use it. The WebGPU model download is approximately 315 MB, with a smaller quantized fallback on supported CPU paths. Loading and narration speed depend on your device; first use is not instant. Installed device voices offer the fastest start and do not require a model download. Instant mode currently lists local US and UK English voices; availability and word-timing support depend on your operating system and browser.
+Natural mode downloads voice-model data from Hugging Face the first time you use it. The WebGPU model download is approximately 326 MB, with an approximately 92 MB quantized fallback on supported CPU paths. Loading and narration speed depend on your device; first use is not instant. Installed device voices offer the fastest start and do not require a model download. Instant mode currently lists local US and UK English voices; availability and word-timing support depend on your operating system and browser.
 
 Local PDFs require enabling “Allow access to file URLs” in Chrome's extension settings. Literate extracts embedded text; scanned PDFs need OCR elsewhere. Complex layouts may need section selection or may not read in the intended order. Chrome internal pages and some protected pages cannot be read.
 

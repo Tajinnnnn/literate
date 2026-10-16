@@ -5,9 +5,11 @@ test('saved device mode never warms Kokoro on page or popup load',async()=>{
  class System {getState(){return {active:false};}getVoices(){return [];}stop(){}}
  class Natural extends System {ensureModelLoaded(){loads++;return Promise.resolve();}getNaturalVoiceMeta(){return {status:'idle'};}}
  const MSG={GET_STATE:'state'};
- vm.runInNewContext(compiled('shared/readerBootstrap.js'),{exports,Date,Math,Promise,setTimeout,document:{addEventListener(){},title:'Test'},window:{location:{hostname:'test'}},chrome:{runtime:{onMessage:{addListener(fn){listener=fn;}}},storage:{sync:{get(keys,cb){cb({ttsNaturalVoiceEnabled:false});},set(){}},onChanged:{addListener(){}}}},require(id){if(id.endsWith('naturalVoiceEngine'))return {NaturalVoiceEngine:Natural};if(id.endsWith('ttsEngine'))return {TTSEngine:System};if(id.endsWith('darkMode'))return {initDarkMode(){},isDarkModeActive(){return false;}};if(id.endsWith('messages'))return {MSG,DEFAULT_HOTKEYS:{}};return {};}});
+ vm.runInNewContext(compiled('shared/readerBootstrap.js'),{exports,Date,Math,Promise,setTimeout,document:{addEventListener(){},title:'Test'},window:{location:{hostname:'test'}},chrome:{runtime:{id:'test',onMessage:{addListener(fn){listener=fn;}}},storage:{sync:{get(keys,cb){cb({ttsNaturalVoiceEnabled:false});},set(){}},onChanged:{addListener(){}}}},require(id){if(id.endsWith('security.mjs'))return require('../src/shared/security.mjs');if(id.endsWith('naturalVoiceEngine'))return {NaturalVoiceEngine:Natural};if(id.endsWith('ttsEngine'))return {TTSEngine:System};if(id.endsWith('darkMode'))return {initDarkMode(){},isDarkModeActive(){return false;}};if(id.endsWith('messages'))return {MSG,DEFAULT_HOTKEYS:{}};return {};}});
  exports.initReadingSurface();
- const result=await new Promise(resolve=>listener({type:MSG.GET_STATE},{},resolve));
+ assert.equal(listener({type:MSG.GET_STATE},{id:'foreign'},()=>assert.fail('foreign caller received state')),false);
+ assert.equal(listener({type:MSG.GET_STATE},{id:'test',url:'https://example.test',tab:{id:2}},()=>assert.fail('content caller received state')),false);
+ const result=await new Promise(resolve=>listener({type:MSG.GET_STATE},{id:'test',url:'chrome-extension://test/popup.html'},resolve));
  assert.equal(result.naturalVoiceEnabled,false);assert.equal(loads,0);
 });
 

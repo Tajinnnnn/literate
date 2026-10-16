@@ -1,3 +1,4 @@
+import { trustedController } from './security.mjs';
 import { pickReadingSection } from '../pages/Content/modules/sectionPicker';
 import { TTSEngine } from '../pages/Content/modules/ttsEngine';
 import { NaturalVoiceEngine } from '../pages/Content/modules/naturalVoiceEngine';
@@ -133,6 +134,7 @@ export function initReadingSurface() {
   });
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (!message || !trustedController(sender, chrome.runtime)) return false;
     // A detached player must never control a different document after navigation.
     if (message.expectedSurfaceId && message.expectedSurfaceId !== surfaceId) {
       sendResponse(null);

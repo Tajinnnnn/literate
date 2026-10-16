@@ -3,6 +3,7 @@ export function sharedVoiceService(loadModel) {
   let modelPromise, model, tail = Promise.resolve();
   let state = { status: 'idle', progress: 0, backend: null, instanceId: `${Date.now()}-${Math.random().toString(36).slice(2)}`, loadCount: 0 };
   const cache = new Map();
+  let queued = 0;
   async function ensure() {
     if (!modelPromise) {
       state = { ...state, status: 'loading', error: null };
@@ -15,15 +16,19 @@ export function sharedVoiceService(loadModel) {
     return modelPromise;
   }
   async function generate(text, voice) {
+    if (typeof text !== 'string' || !text.trim() || text.length > 1000) throw new Error('Invalid narration text');
     await ensure();
+    if (!Object.prototype.hasOwnProperty.call(model.voices, voice)) throw new Error('Unknown narration voice');
     const key = `${voice}\n${text}`;
     let pending = cache.get(key);
     if (!pending) {
-      pending = tail.then(() => model.generate(text, { voice, speed: 1 }));
+      if (queued >= 16) throw new Error('The narration queue is busy. Retry shortly.');
+      queued++;
+      pending = tail.then(() => model.generate(text, { voice, speed: 1 })).finally(() => { queued--; });
       tail = pending.catch(() => {});
       cache.set(key, pending);
       if (cache.size > 8) cache.delete(cache.keys().next().value);
-      pending.catch(() => cache.delete(key));
+      pending.catch(() => { if (cache.get(key) === pending) cache.delete(key); });
     }
     return pending;
   }

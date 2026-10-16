@@ -4,6 +4,7 @@ Candidate: 1.0.5. Both Kokoro and installed device voices remain available. This
 
 ## Files
 
+- security-review.md: security changes, dependency findings, and verification limits.
 - listing.md: listing copy, public support/privacy links and reviewer steps.
 - privacy-fields.md: purpose, permission justifications and data-use guidance.
 - assets/: actual UI screenshots, store icon and 440×280 promotional tile.

@@ -222,7 +222,7 @@ export default function Popup() {
     {showSettings ? <section className="player-settings">
       <p className="section-kicker">Make it yours</p><h1>Reading preferences</h1>
       <label className="engine-control">Voice engine<select aria-label="Voice engine" value={naturalMode ? 'natural' : 'device'} disabled={unavailable} onChange={e => command(MSG.SET_NATURAL_VOICE_ENABLED, { enabled: e.target.value === 'natural' })}><option value="natural">Natural — Kokoro</option><option value="device">Instant — device voices</option></select></label>
-      <p className="voice-help">{naturalMode ? 'Natural narration, generated on your device.' : 'Starts without a model download. Uses installed device voices.'}</p>
+      <p className="voice-help">{naturalMode ? 'First use downloads about 326 MB (92 MB on CPU), plus voice files. Speech stays on your device.' : 'Starts without a model download. Uses installed device voices.'}</p>
       <section className="accent-settings" aria-label="Accent color">
         <h2>Accent color</h2>
         <div className="accent-presets">{ACCENT_COLORS.map(({name, color}) => <button key={color} type="button" className="accent-swatch" style={{'--swatch': color}} aria-label={`${name} accent`} aria-pressed={accent === color} title={name} onClick={() => changeAccent(color)} />)}</div>
@@ -242,6 +242,7 @@ export default function Popup() {
         <h1 className="page-title">{state?.title || (unavailable ? 'Find something worth listening to.' : 'Your page, in a new voice.')}</h1>
         <p className="page-subtitle">{unavailable ? (SOURCE.detached ? 'The original page was closed, navigated, or refreshed.' : 'Open a regular webpage to start reading.') : `${voiceName} · ${state?.site || 'Natural narration'}`}</p>
 
+        {naturalMode && !unavailable && voice.status === 'idle' && !active && <p className="voice-help">First use downloads about 326 MB, or 92 MB on CPU.</p>}
         <div className="reading-progress"><progress aria-label="Reading progress" max="100" value={progress} /><div className="progress-labels"><span>{wordCount ? `${Math.round(progress)}% read` : 'Your own pace'}</span><span>{wordCount ? `${wordCount} words` : 'On-device voice'}</span></div></div>
         <div className="player-transport">
           <button className="icon-button" aria-label="Previous paragraph" title="Previous paragraph" disabled={!active} onClick={() => command(MSG.REWIND)}><Icon name="previous" size={20} /></button>

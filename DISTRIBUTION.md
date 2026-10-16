@@ -8,7 +8,7 @@ Literate runs independently of VoiceStudio. End users do not install Node, Pytho
 2. Open Chrome's Extensions page, enable Developer mode, choose Load unpacked, and select that folder.
 3. Open an article and click Literate. Allow the first model download/warm-up to complete.
 
-Requires Chrome 116 or later. WebGPU gives the best performance; the same voice model has a WASM fallback. The GPU model download is approximately 315 MB; Chrome caches downloaded model files. The extension package includes the executable JavaScript and WASM runtime, but not the model weights. Reinstalling the extension or clearing its storage can require another download. Offline use depends on the required weights/tokenizer/voice assets remaining cached.
+Requires Chrome 116 or later. WebGPU gives the best performance; the same voice model has a WASM fallback. The GPU model download is approximately 326 MB; Chrome caches downloaded model files. The extension package includes the executable JavaScript and WASM runtime, but not the model weights. Reinstalling the extension or clearing its storage can require another download. Offline use depends on the required weights/tokenizer/voice assets remaining cached.
 
 One shared worker keeps the voice resident across pages while Chrome is running. Closing Chrome, reloading/updating the extension, or a browser/worker crash can require warming it again. Page navigation does not create another model. Page audio/highlighting still belongs to that reading page.
 

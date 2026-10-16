@@ -1,4 +1,5 @@
 import './voiceHost';
+import { playerSender } from '../../shared/security.mjs';
 import { MSG } from '../../shared/messages';
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -47,7 +48,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(
 
 // Discover existing player windows instead of relying on service-worker memory.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type !== MSG.OPEN_PLAYER) return false;
+  if (message?.type !== MSG.OPEN_PLAYER || !playerSender(sender, chrome.runtime)) return false;
   const tabId = message.tabId;
   if (!Number.isSafeInteger(tabId) || tabId <= 0) {
     sendResponse({ ok: false });

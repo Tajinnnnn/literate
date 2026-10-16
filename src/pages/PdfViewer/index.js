@@ -1,3 +1,4 @@
+import { localPdfUrl, readPdfBytes, MAX_PDF_PAGES, MAX_PDF_TEXT } from '../../shared/pdfSafety.mjs';
 import * as pdfjsLib from 'pdfjs-dist/webpack.mjs';
 import { reflowPdfText } from '../../shared/pdfText.mjs';
 import { initReadingSurface } from '../../shared/readerBootstrap';
@@ -53,14 +54,19 @@ async function extractPageText(pdf, pageNumber) {
 }
 
 async function loadPdf(fileUrl) {
+  fileUrl = localPdfUrl(fileUrl);
   renderMessage('pdfxr-loading', 'Loading PDF...');
 
   const response = await fetch(fileUrl);
   if (!response.ok) {
     throw new Error('could not read file (HTTP ' + response.status + ')');
   }
-  const data = await response.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  const data = await readPdfBytes(response);
+  const pdf = await pdfjsLib.getDocument({ data, isEvalSupported: false, disableFontFace: true, useSystemFonts: false }).promise;
+  if (pdf.numPages > MAX_PDF_PAGES) {
+    await pdf.destroy();
+    throw new Error('PDF exceeds the 2,000-page reading limit.');
+  }
 
   const header = document.createElement('header');
   header.className = 'pdfxr-header';
@@ -71,25 +77,30 @@ async function loadPdf(fileUrl) {
   const main = document.createElement('main');
   main.className = 'pdfxr-content';
 
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-    const text = await extractPageText(pdf, pageNumber);
-    const pageEl = document.createElement('section');
-    pageEl.className = 'pdfxr-page';
+  let textLength = 0;
+  try {
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      const text = await extractPageText(pdf, pageNumber);
+      textLength += text.length;
+      if (textLength > MAX_PDF_TEXT) throw new Error('PDF contains too much text to read in one session.');
+      const pageEl = document.createElement('section');
+      pageEl.className = 'pdfxr-page';
 
-    const label = document.createElement('span');
-    label.className = 'pdfxr-page-number';
-    label.setAttribute('data-ttsxr-ignore', '');
-    label.textContent = 'Page ' + pageNumber;
+      const label = document.createElement('span');
+      label.className = 'pdfxr-page-number';
+      label.setAttribute('data-ttsxr-ignore', '');
+      label.textContent = 'Page ' + pageNumber;
 
-    pageEl.appendChild(label);
-    for (const paragraph of (text || '(no extractable text on this page)').split(/\n{2,}/)) {
-      const p = document.createElement('p');
-      p.textContent = paragraph;
-      pageEl.appendChild(p);
+      pageEl.appendChild(label);
+      for (const paragraph of (text || '(no extractable text on this page)').split(/\n{2,}/)) {
+        const p = document.createElement('p');
+        p.textContent = paragraph;
+        pageEl.appendChild(p);
+      }
+      main.appendChild(pageEl);
     }
-    main.appendChild(pageEl);
-  }
 
+  } finally { await pdf.destroy(); }
   root.innerHTML = '';
   root.appendChild(header);
   root.appendChild(main);

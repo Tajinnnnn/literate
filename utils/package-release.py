@@ -1,18 +1,26 @@
 """Package only Literate runtime assets, never stale/debug pages from build/."""
 from pathlib import Path
 import json
+import re
 import zipfile
 
 root = Path(__file__).resolve().parents[1]
 build = root / 'build'
-required = ['manifest.json', 'background.bundle.js', 'popup.html', 'popup.bundle.js', 'contentScript.bundle.js', 'content.styles.css', 'pdfviewer.html', 'pdfviewer.bundle.js', '13.bundle.js', 'voice-host.html', 'voiceHost.bundle.js', 'voiceWorker.bundle.js', 'ort-wasm-simd-threaded.jsep.mjs', 'ort-wasm-simd-threaded.jsep.wasm', 'icon-16.png', 'icon-32.png', 'icon-34.png', 'icon-48.png', 'icon-128.png', 'logo.svg']
+required = ['manifest.json', 'background.bundle.js', 'popup.html', 'popup.bundle.js', 'contentScript.bundle.js', 'content.styles.css', 'pdfviewer.html', 'pdfviewer.bundle.js', 'voice-host.html', 'voiceHost.bundle.js', 'voiceWorker.bundle.js', 'ort-wasm-simd-threaded.jsep.mjs', 'ort-wasm-simd-threaded.jsep.wasm', 'icon-16.png', 'icon-32.png', 'icon-34.png', 'icon-48.png', 'icon-128.png', 'logo.svg']
 for name in required:
     if not (build / name).is_file():
         raise SystemExit(f'Build asset missing: {name}')
 manifest = json.loads((build / 'manifest.json').read_text())
 files = {build / name for name in required}
-for suffix in ('*.wasm', '*.mjs', '*.svg', '*.png'):
-    files.update(build.glob(suffix))
+# Only assets from the current compilation, including its actual PDF worker chunk.
+# Numeric chunk ids change after dependency updates; never hardcode one.
+current = json.loads((build / 'runtime-assets.json').read_text())['files']
+for name in current:
+    if re.fullmatch(r'[0-9]+\.bundle\.js', name) or Path(name).suffix in ('.wasm', '.mjs', '.svg', '.png'):
+        path = build / name
+        if path.parent != build or not path.is_file():
+            raise SystemExit(f'Invalid runtime asset: {name}')
+        files.add(path)
 release = root / 'releases'
 release.mkdir(exist_ok=True)
 output = release / f'literate-{manifest["version"]}-standalone-beta.zip'

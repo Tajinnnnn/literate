@@ -13,7 +13,7 @@ var options = config.chromeExtensionBoilerplate || {};
 var excludeEntriesToHotReload = options.notHotReload || [];
 
 for (var entryName in config.entry) {
-  if (excludeEntriesToHotReload.indexOf(entryName) === -1) {
+  if (excludeEntriesToHotReload.indexOf(entryName) === -1 && typeof config.entry[entryName] === 'string') {
     config.entry[entryName] = [
       'webpack/hot/dev-server',
       `webpack-dev-server/client?hot=true&hostname=localhost&port=${env.PORT}`,
@@ -27,13 +27,13 @@ var compiler = webpack(config);
 
 var server = new WebpackDevServer(
   {
-    https: false,
+    server: 'http',
     hot: true,
     liveReload: false,
     client: {
-      webSocketTransport: 'sockjs',
+      webSocketTransport: 'ws',
     },
-    webSocketServer: 'sockjs',
+    webSocketServer: 'ws',
     host: 'localhost',
     port: env.PORT,
     static: {
@@ -43,10 +43,7 @@ var server = new WebpackDevServer(
       publicPath: `http://localhost:${env.PORT}/`,
       writeToDisk: true,
     },
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-    allowedHosts: 'all',
+    allowedHosts: ['localhost', '127.0.0.1', '[::1]'],
   },
   compiler
 );
