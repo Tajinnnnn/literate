@@ -1,0 +1,15 @@
+Meet Literate: a free, open-source reader for articles, selected text, and local PDFs.
+
+In Settings, choose Instant for the quickest start with installed device voices. Or choose Natural for Kokoro, which downloads its model before first use.
+
+Open an article, click Literate, and press Play. Follow the highlighted words. For a shorter passage, select the text, right-click, and choose Read selection aloud.
+
+Want to skip a sidebar? Choose section, point at the part you want, and click. Literate reads that section.
+
+Open the mini-player to follow the scrolling words. Click a word to jump there. Use the pin to keep the player above other windows.
+
+Adjust the speed, switch between light and dark, and choose your accent color.
+
+For local PDFs, enable Allow access to file URLs in Chrome’s extension settings. Then open the PDF. Scanned documents need text recognition first.
+
+Your reading stays on your device. Keep the original page open, find your pace, and listen.
